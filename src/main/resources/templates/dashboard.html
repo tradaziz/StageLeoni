@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leoni Admin Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+      }
+
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .sidebar-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar-header h2 {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+
+      .sidebar-header p {
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      .nav-menu {
+        list-style: none;
+      }
+
+      .nav-menu li {
+        margin-bottom: 10px;
+      }
+
+      .nav-menu a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-menu a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .nav-menu a.active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-menu i {
+        margin-right: 10px;
+        width: 20px;
+      }
+
+      .main-content {
+        flex: 1;
+        margin-left: 250px;
+        padding: 20px;
+      }
+
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header h1 {
+        color: #1e3c72;
+        font-size: 28px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+      }
+
+      .sync-btn:hover {
+        background: #218838 !important;
+        transform: translateY(-1px);
+      }
+
+      .sync-btn:disabled {
+        background: #6c757d !important;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .content-section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .section-header h2 {
+        color: #1e3c72;
+        font-size: 24px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+      }
+
+      .welcome-message {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .welcome-message h3 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #1e3c72;
+      }
+
+      .welcome-message p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .api-endpoints {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      .api-endpoints h4 {
+        color: #1e3c72;
+        margin-bottom: 15px;
+      }
+
+      .endpoint-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+        border-left: 4px solid #2a5298;
+      }
+
+      .endpoint-item code {
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        color: #d63384;
+      }
+
+      .logout-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logout-btn:hover {
+        background: #c82333;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .employees-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+      }
+
+      .employees-table th {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #ddd;
+      }
+
+      .employees-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+      }
+
+      .employees-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .employee-name {
+        font-weight: 600;
+        color: #1e3c72;
+      }
+
+      .employee-email {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .document-count {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-view {
+        background: #17a2b8;
+        color: white;
+      }
+
+      .btn-view:hover {
+        background: #138496;
+      }
+
+      .btn-edit {
+        background: #ffc107;
+        color: #212529;
+      }
+
+      .btn-edit:hover {
+        background: #e0a800;
+      }
+
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-delete:hover {
+        background: #c82333;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .modal-header h3 {
+        color: #1e3c72;
+        margin: 0;
+      }
+
+      .close {
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close:hover {
+        color: #333;
+      }
+
+      .documents-list {
+        margin-top: 20px;
+      }
+
+      .document-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border-left: 4px solid #2a5298;
+      }
+
+      .document-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .document-type {
+        font-weight: 600;
+        color: #1e3c72;
+      }
+
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-en-attente {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-en-cours {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-accepte {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-refuse {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      /* Pending Requests Section Styles */
+      .section-content {
+        margin-bottom: 30px;
+      }
+
+      .section-header h2 i {
+        margin-right: 10px;
+        color: #ffc107;
+      }
+
+      .stats-badge {
+        background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .btn-approve {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-right: 5px;
+        transition: all 0.3s ease;
+        font-size: 12px;
+      }
+
+      .btn-approve:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+      }
+
+      .btn-reject {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 12px;
+      }
+
+      .btn-reject:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+      }
+
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .document-description {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .document-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .loading i {
+        font-size: 24px;
+        margin-bottom: 10px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 200px;
+        }
+
+        .main-content {
+          margin-left: 200px;
+        }
+
+        .employees-table {
+          font-size: 14px;
+        }
+
+        .employees-table th,
+        .employees-table td {
+          padding: 8px;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>LEOIN</h2>
+          <p>Admin Panel</p>
+        </div>
+        <nav>
+          <ul class="nav-menu">
+            <li>
+              <a href="#employees" id="employeesLink" class="active"
+                ><i class="fas fa-users"></i> Employees</a
+              >
+            </li>
+            <li>
+              <a href="#pending-requests" id="pendingRequestsLink"
+                ><i class="fas fa-user-clock"></i> Pending Requests</a
+              >
+            </li>
+            <li>
+              <a href="#document-types" id="documentTypesLink"
+                ><i class="fas fa-file-alt"></i> Document Types</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="main-content">
+        <div class="header">
+          <h1 id="mainTitle">LEOIN Management</h1>
+          <div class="user-info">
+            <button
+              onclick="syncData()"
+              class="sync-btn"
+              style="
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 15px;
+              "
+            >
+              <i class="fas fa-sync-alt"></i> Sync Data
+            </button>
+            <div class="user-avatar">A</div>
+            <span id="currentAdminName">Admin User</span>
+            <button onclick="logout()" class="logout-btn" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-left: 15px;
+              ">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div class="content-section" id="mainContentSection">
+          <div class="section-header">
+            <h2 id="sectionTitle">Employee Management</h2>
+            <button
+              class="btn-primary"
+              id="addEmployeeBtn"
+              onclick="showAddEmployeeModal()"
+            >
+              <i class="fas fa-plus"></i>
+              Add Employee
+            </button>
+          </div>
+
+          <div id="employeeTable" class="table-container">
+            <table class="employees-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Address 1</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>Position</th>
+                  <th>Documents</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody">
+                <!-- Employee data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            id="welcomeMessage"
+            class="welcome-message"
+            style="display: none"
+          >
+            <h3>🎉 System Ready for React Development!</h3>
+            <p>
+              Your backend API is fully configured and ready to be integrated
+              with a React frontend. The admin panel provides comprehensive
+              employee and document management capabilities.
+            </p>
+
+            <div class="api-endpoints">
+              <h4>Available API Endpoints:</h4>
+              <div class="endpoint-item">
+                <strong>Authentication:</strong>
+                <code>POST /api/auth/login</code>
+              </div>
+              <div class="endpoint-item">
+                <strong>Employees:</strong>
+                <code>GET/POST/PUT/DELETE /api/admin/employees</code>
+              </div>
+              <div class="endpoint-item">
+                <strong>Documents:</strong>
+                <code>GET/POST/PUT/DELETE /api/admin/documents</code>
+              </div>
+              <div class="endpoint-item">
+                <strong>Dashboard Stats:</strong>
+                <code>GET /api/admin/dashboard/stats</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div
+          class="content-section"
+          id="pendingRequestsSection"
+          style="display: none"
+        >
+          <div class="section-header">
+            <h2>Pending User Requests</h2>
+          </div>
+
+          <div id="pendingRequestsTable" class="table-container">
+            <table class="employees-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Address 1</th>
+                  <th>Address 2</th>
+                  <th>Phone</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>Position</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pendingRequestsTableBody">
+                <!-- Pending requests will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Document Types Section -->
+        <div
+          class="content-section"
+          id="documentTypesSection"
+          style="display: none"
+        >
+          <div class="section-header">
+            <h2 id="documentTypesTitle">Document Types</h2>
+            <button
+              class="btn-primary"
+              id="addDocumentTypeBtn"
+              onclick="showAddDocumentTypeModal()"
+            >
+              <i class="fas fa-plus"></i>
+              Add Document Type
+            </button>
+          </div>
+
+          <div id="documentTypesTable" class="table-container">
+            <table class="employees-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documentTypesTableBody">
+                <!-- Document types will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    >
+
+    <!-- Employee View Modal -->
+    <div id="employeeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Employee Details</h3>
+          <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div id="modalBody">
+          <!-- Employee details and documents will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Type Modal -->
+    <div id="documentTypeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="documentTypeModalTitle">Add Document Type</h3>
+          <span class="close" onclick="closeDocumentTypeModal()">&times;</span>
+        </div>
+        <div id="documentTypeModalBody">
+          <form id="documentTypeForm">
+            <div style="margin-bottom: 15px">
+              <label
+                style="display: block; margin-bottom: 5px; font-weight: bold"
+                >Name:</label
+              >
+              <input
+                type="text"
+                id="documentTypeName"
+                required
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <div style="margin-bottom: 15px">
+              <label
+                style="display: block; margin-bottom: 5px; font-weight: bold"
+                >Description:</label
+              >
+              <textarea
+                id="documentTypeDescription"
+                rows="3"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              ></textarea>
+            </div>
+            <div style="margin-bottom: 20px">
+              <label style="display: flex; align-items: center; gap: 8px">
+                <input type="checkbox" id="documentTypeActive" checked />
+                <span>Active</span>
+              </label>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end">
+              <button
+                type="button"
+                onclick="closeDocumentTypeModal()"
+                style="
+                  background: #6c757d;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                style="
+                  background: #007bff;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                Save Document Type
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global variables
+      let employees = [];
+      let currentEmployee = null;
+
+      // Load employees from API
+      async function loadEmployees() {
+        try {
+          showLoading();
+
+          // Get admin username from URL parameters or session storage
+          const urlParams = new URLSearchParams(window.location.search);
+          let adminUsername = urlParams.get("adminUsername");
+          
+          // If no URL parameter, try to get from session storage
+          if (!adminUsername) {
+            adminUsername = sessionStorage.getItem('currentAdmin');
+          }
+          
+          // If still no admin, redirect to home page
+          if (!adminUsername) {
+            window.location.href = '/';
+            return;
+          }
+          
+          // Store admin in session for future use
+          sessionStorage.setItem('currentAdmin', adminUsername);
+          
+          // Update the admin name in the header
+          document.getElementById('currentAdminName').textContent = `Admin: ${adminUsername}`;
+
+          console.log("Loading employees for admin:", adminUsername);
+          const response = await fetch(
+            `/api/admin/employees?adminUsername=${adminUsername}`
+          );
+          if (response.ok) {
+            employees = await response.json();
+            displayEmployees(); // No need to await anymore
+          } else {
+            showError("Failed to load employees");
+          }
+        } catch (error) {
+          showError("Error loading employees: " + error.message);
+        }
+      }
+
+      // Display employees in table
+      function displayEmployees() {
+        const tbody = document.getElementById("employeeTableBody");
+
+        if (employees.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;"></i>
+                            <br>No employees found. Click "Add Employee" to create the first one.
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        tbody.innerHTML = employees
+          .map(
+            (employee) => `
+                <tr>
+                    <td>${employee.employeeId || "N/A"}</td>
+                    <td>
+                        <div class="employee-name">${employee.firstName} ${
+              employee.lastName
+            }</div>
+                        <div class="employee-email">${
+                          employee.adresse1 || "N/A"
+                        }</div>
+                    </td>
+                    <td>${employee.adresse1 || "N/A"}</td>
+                    <td>${employee.department || "Not specified"}</td>
+                    <td>${employee.location || "Not specified"}</td>
+                    <td>${employee.position || "Not specified"}</td>
+                    <td>
+                        <span class="document-count" id="docCount-${
+                          employee.id
+                        }">Loading...</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewEmployee('${
+                              employee.id
+                            }')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn-action btn-edit" onclick="editEmployee('${
+                              employee.id
+                            }')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteEmployee('${
+                              employee.id
+                            }')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `
+          )
+          .join("");
+
+        // Load document counts after displaying the table
+        loadDocumentCounts();
+      }
+
+      // Load document counts for all employees
+      async function loadDocumentCounts() {
+        for (const employee of employees) {
+          try {
+            const response = await fetch(
+              `/api/admin/employees/${employee.id}/documents`
+            );
+            let documentCount = 0;
+
+            if (response.ok) {
+              const data = await response.json();
+              const documents = Array.isArray(data)
+                ? data
+                : data.documents || [];
+              documentCount = documents.length;
+            } else {
+              // Fallback to documentRequestIds if API fails
+              documentCount = employee.documentRequestIds
+                ? employee.documentRequestIds.length
+                : 0;
+            }
+
+            const countElement = document.getElementById(
+              `docCount-${employee.id}`
+            );
+            if (countElement) {
+              countElement.textContent = `${documentCount} docs`;
+            }
+          } catch (error) {
+            console.error(
+              `Error loading documents for employee ${employee.id}:`,
+              error
+            );
+            const countElement = document.getElementById(
+              `docCount-${employee.id}`
+            );
+            if (countElement) {
+              const fallbackCount = employee.documentRequestIds
+                ? employee.documentRequestIds.length
+                : 0;
+              countElement.textContent = `${fallbackCount} docs`;
+            }
+          }
+        }
+      }
+
+      // Load pending user requests
+      async function loadPendingRequests() {
+        try {
+          showLoading();
+          const response = await fetch("/api/admin/employees/pending");
+          if (response.ok) {
+            const pendingUsers = await response.json();
+            displayPendingRequests(pendingUsers);
+
+            // Note: Title removed from UI - count displayed in table only
+          } else {
+            showError("Failed to load pending requests");
+          }
+        } catch (error) {
+          showError("Error loading pending requests: " + error.message);
+        }
+      }
+
+      // Display pending requests in table
+      function displayPendingRequests(pendingUsers) {
+        const tbody = document.getElementById("pendingRequestsTableBody");
+
+        if (pendingUsers.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-user-clock" style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;"></i>
+                            <br>No pending requests found. All users are approved!
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        tbody.innerHTML = pendingUsers
+          .map(
+            (user) => `
+                <tr>
+                    <td>${user.employeeId || "N/A"}</td>
+                    <td>
+                        <div class="employee-name">${user.firstName} ${
+              user.lastName
+            }</div>
+                    </td>
+                    <td>${user.adresse1 || "N/A"}</td>
+                    <td>${user.adresse2 || "N/A"}</td>
+                    <td>${user.phoneNumber || "N/A"}</td>
+                    <td>${user.department || "Not specified"}</td>
+                    <td>${user.location || "Not specified"}</td>
+                    <td>${user.position || "Not specified"}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-approve" onclick="approveUser('${
+                              user.id
+                            }')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn-reject" onclick="rejectUser('${
+                              user.id
+                            }')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `
+          )
+          .join("");
+      }
+
+      // Format date for display
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+      }
+
+      // Safe date formatting function
+      function formatDateSafe(dateString) {
+        if (!dateString) return "N/A";
+        try {
+          // Handle different date formats
+          let date;
+
+          // If it's already a Date object
+          if (dateString instanceof Date) {
+            date = dateString;
+          }
+          // If it's a timestamp (number)
+          else if (typeof dateString === "number") {
+            date = new Date(dateString);
+          }
+          // If it's a string, try to parse it
+          else if (typeof dateString === "string") {
+            // Handle ISO format, timestamp strings, etc.
+            date = new Date(dateString);
+          } else {
+            return "N/A";
+          }
+
+          // Check if the date is valid
+          if (isNaN(date.getTime())) {
+            console.log("Invalid date:", dateString);
+            return "N/A";
+          }
+
+          // Format as: Mon Jul 28 2025
+          return date.toDateString();
+        } catch (error) {
+          console.log(
+            "Date formatting error:",
+            error,
+            "for value:",
+            dateString
+          );
+          return "N/A";
+        }
+      }
+
+      // Approve user
+      async function approveUser(userId) {
+        if (
+          !confirm(
+            "Are you sure you want to approve this user? They will be able to login."
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `/api/admin/employees/${userId}/approve`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            alert("User approved successfully!");
+            loadPendingRequests(); // Reload the pending requests
+            loadEmployees(); // Reload employees list
+          } else {
+            const error = await response.json();
+            alert(
+              "Failed to approve user: " + (error.message || "Unknown error")
+            );
+          }
+        } catch (error) {
+          alert("Error approving user: " + error.message);
+        }
+      }
+
+      // Reject user
+      async function rejectUser(userId) {
+        if (
+          !confirm(
+            "Are you sure you want to reject this user? Their account will be deleted."
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `/api/admin/employees/${userId}/reject`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            alert("User rejected and account deleted successfully!");
+            loadPendingRequests(); // Reload the pending requests
+          } else {
+            const error = await response.json();
+            alert(
+              "Failed to reject user: " + (error.message || "Unknown error")
+            );
+          }
+        } catch (error) {
+          alert("Error rejecting user: " + error.message);
+        }
+      }
+
+      // View employee details with documents
+      async function viewEmployee(employeeId) {
+        try {
+          const employee = employees.find((emp) => emp.id === employeeId);
+          if (!employee) {
+            showError("Employee not found");
+            return;
+          }
+
+          currentEmployee = employee;
+
+          // Load employee documents
+          const response = await fetch(
+            `/api/admin/employees/${employeeId}/documents`
+          );
+
+          let documents = [];
+          if (response.ok) {
+            const data = await response.json();
+            documents = Array.isArray(data) ? data : data.documents || [];
+          } else {
+            console.error("Failed to load documents for employee:", employeeId);
+            showError("Failed to load documents for this employee");
+          }
+
+          document.getElementById(
+            "modalTitle"
+          ).textContent = `${employee.firstName} ${employee.lastName} - Details`;
+
+          document.getElementById("modalBody").innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Personal Information</h4>
+                        <p><strong>Employee ID:</strong> ${
+                          employee.employeeId || "N/A"
+                        }</p>
+                        <p><strong>Address 1:</strong> ${
+                          employee.adresse1 || "N/A"
+                        }</p>
+                        <p><strong>Address 2:</strong> ${
+                          employee.adresse2 || "N/A"
+                        }</p>
+                        <p><strong>Phone:</strong> ${
+                          employee.phoneNumber || "N/A"
+                        }</p>
+                        <p><strong>Department:</strong> ${
+                          employee.department || "Not specified"
+                        }</p>
+                        <p><strong>Position:</strong> ${
+                          employee.position || "Not specified"
+                        }</p>
+                        <p><strong>Created:</strong> ${
+                          employee.createdAt
+                            ? formatDateSafe(employee.createdAt)
+                            : "N/A"
+                        }</p>
+                    </div>
+                    
+                    <div class="documents-list">
+                        <h4 style="color: #1e3c72; margin-bottom: 15px;">Documents (${
+                          documents.length
+                        })</h4>
+                        ${
+                          documents.length === 0
+                            ? '<p style="color: #666; font-style: italic;">No documents found for this employee.</p>'
+                            : documents
+                                .map(
+                                  (doc) => `
+                                <div class="document-item">
+                                    <div class="document-header">
+                                        <span class="document-type">${
+                                          doc.documentTypes &&
+                                          doc.documentTypes.length > 0
+                                            ? doc.documentTypes.join(", ")
+                                            : doc.documentType || "Unknown Type"
+                                        }</span>
+                                        <span class="status-badge status-${doc.status.current
+                                          .replace(" ", "-")
+                                          .replace(/é/g, "e")}">${
+                                    doc.status.current
+                                  }</span>
+                                    </div>
+                                    <div class="document-description">${
+                                      doc.description || "No description"
+                                    }</div>
+                                    <div class="document-meta" style="color: #666; font-size: 12px; margin-top: 8px;">
+                                        <span>Created: ${
+                                          doc.createdAt
+                                            ? formatDateSafe(doc.createdAt)
+                                            : "N/A"
+                                        }</span>
+                                        ${
+                                          doc.updatedAt
+                                            ? ` | Updated: ${formatDateSafe(
+                                                doc.updatedAt
+                                              )}`
+                                            : ""
+                                        }
+                                    </div>
+                                </div>
+                            `
+                                )
+                                .join("")
+                        }
+                    </div>
+                `;
+
+          document.getElementById("employeeModal").style.display = "block";
+        } catch (error) {
+          showError("Error loading employee details: " + error.message);
+        }
+      }
+
+      // Edit employee
+      async function editEmployee(employeeId) {
+        try {
+          const employee = employees.find((emp) => emp.id === employeeId);
+          if (!employee) {
+            showError("Employee not found");
+            return;
+          }
+
+          // Set current employee for editing
+          currentEmployee = employee;
+
+          // Load employee documents
+          const response = await fetch(
+            `/api/admin/employees/${employeeId}/documents`
+          );
+
+          let documents = [];
+          if (response.ok) {
+            const data = await response.json();
+            documents = Array.isArray(data) ? data : data.documents || [];
+          } else {
+            console.error("Failed to load documents for employee:", employeeId);
+          }
+
+          // Set modal title
+          document.getElementById(
+            "modalTitle"
+          ).textContent = `Edit Employee - ${employee.firstName} ${employee.lastName}`;
+
+          // Create edit form with document management
+          document.getElementById("modalBody").innerHTML = `
+            <form id="editEmployeeForm" style="max-width: 100%;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <!-- Employee Information Section -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                  <h4 style="color: #1e3c72; margin-bottom: 15px;">Employee Information</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">First Name:</label>
+                      <input type="text" id="editFirstName" value="${
+                        employee.firstName || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Last Name:</label>
+                      <input type="text" id="editLastName" value="${
+                        employee.lastName || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Employee ID:</label>
+                      <input type="text" id="editEmployeeId" value="${
+                        employee.employeeId || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Address 1:</label>
+                      <input type="email" id="editAdresse1" value="${
+                        employee.adresse1 || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Address 2:</label>
+                      <input type="email" id="editAdresse2" value="${
+                        employee.adresse2 || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number:</label>
+                      <input type="tel" id="editPhoneNumber" value="${
+                        employee.phoneNumber || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Department:</label>
+                      <input type="text" id="editDepartment" value="${
+                        employee.department || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: bold;">Location:</label>
+                      <input type="text" id="editLocation" value="${
+                        employee.location || ""
+                      }" 
+                             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                  </div>
+                  
+                  <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Position:</label>
+                    <input type="text" id="editPosition" value="${
+                      employee.position || ""
+                    }" 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                  </div>
+                  
+                  <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()" 
+                            style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                      Cancel
+                    </button>
+                    <button type="submit" 
+                            style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                      Update Employee & Documents
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Document Management Section -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                  <h4 style="color: #1e3c72; margin-bottom: 15px;">Document Management (${
+                    documents.length
+                  })</h4>
+                  <div id="documentsContainer" style="max-height: 400px; overflow-y: auto;">
+                    ${
+                      documents.length === 0
+                        ? '<p style="color: #666; font-style: italic;">No documents found for this employee.</p>'
+                        : documents
+                            .map(
+                              (doc) => `
+                            <div class="document-item" style="margin-bottom: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 6px; background: white;">
+                                <div class="document-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span class="document-type" style="font-weight: bold; color: #1e3c72;">${
+                                      doc.documentTypes &&
+                                      doc.documentTypes.length > 0
+                                        ? doc.documentTypes.join(", ")
+                                        : doc.documentType || "Unknown Type"
+                                    }</span>
+                                    <span class="status-badge status-${doc.status.current
+                                      .replace(" ", "-")
+                                      .replace(
+                                        /é/g,
+                                        "e"
+                                      )}" style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">${
+                                doc.status.current
+                              }</span>
+                                </div>
+                                <div class="document-description" style="color: #666; margin-bottom: 10px;">${
+                                  doc.description || "No description"
+                                }</div>
+                                <div class="document-actions" style="display: flex; gap: 8px; align-items: center;">
+                                    <div style="flex: 1;">
+                                        <label style="font-size: 11px; color: #666; margin-bottom: 2px; display: block;">Status:</label>
+                                        <select id="status-${
+                                          doc.id
+                                        }" style="width: 100%; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                                            <option value="en attente" ${
+                                              doc.status.current ===
+                                              "en attente"
+                                                ? "selected"
+                                                : ""
+                                            }>En attente</option>
+                                            <option value="en cours" ${
+                                              doc.status.current === "en cours"
+                                                ? "selected"
+                                                : ""
+                                            }>En cours</option>
+                                            <option value="accepté" ${
+                                              doc.status.current === "accepté"
+                                                ? "selected"
+                                                : ""
+                                            }>Accepté</option>
+                                            <option value="refusé" ${
+                                              doc.status.current === "refusé"
+                                                ? "selected"
+                                                : ""
+                                            }>Refusé</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn-action btn-delete" onclick="deleteDocument('${
+                                      doc.id
+                                    }')" 
+                                            style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 8px;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `
+                            )
+                            .join("")
+                    }
+                  </div>
+                </div>
+                
+              </div>
+            </form>
+          `;
+
+          // Add form submit handler
+          document
+            .getElementById("editEmployeeForm")
+            .addEventListener("submit", updateEmployee);
+
+          // Show modal
+          document.getElementById("employeeModal").style.display = "block";
+        } catch (error) {
+          showError("Error loading employee details: " + error.message);
+        }
+      }
+
+      // Update employee function
+      async function updateEmployee(event) {
+        event.preventDefault();
+
+        const formData = {
+          firstName: document.getElementById("editFirstName").value,
+          lastName: document.getElementById("editLastName").value,
+          employeeId: document.getElementById("editEmployeeId").value,
+          adresse1: document.getElementById("editAdresse1").value,
+          adresse2: document.getElementById("editAdresse2").value,
+          phoneNumber: document.getElementById("editPhoneNumber").value,
+          department: document.getElementById("editDepartment").value,
+          location: document.getElementById("editLocation").value,
+          position: document.getElementById("editPosition").value,
+        };
+
+        try {
+          // Update employee information
+          const response = await fetch(
+            `/api/admin/employees/${currentEmployee.id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            }
+          );
+
+          if (response.ok) {
+            // Update document statuses
+            const documentsContainer =
+              document.getElementById("documentsContainer");
+            const statusSelects = documentsContainer.querySelectorAll(
+              "select[id^='status-']"
+            );
+
+            let statusUpdatesSuccessful = true;
+
+            for (const select of statusSelects) {
+              const documentId = select.id.replace("status-", "");
+              const newStatus = select.value;
+
+              try {
+                const statusResponse = await fetch(
+                  `/api/admin/documents/${documentId}/status`,
+                  {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      status: newStatus,
+                    }),
+                  }
+                );
+
+                if (!statusResponse.ok) {
+                  statusUpdatesSuccessful = false;
+                  console.error(
+                    `Failed to update status for document ${documentId}`
+                  );
+                }
+              } catch (error) {
+                statusUpdatesSuccessful = false;
+                console.error(
+                  `Error updating status for document ${documentId}:`,
+                  error
+                );
+              }
+            }
+
+            if (statusUpdatesSuccessful) {
+              showMessage(
+                "Employee and document statuses updated successfully"
+              );
+            } else {
+              showMessage(
+                "Employee updated successfully, but some document statuses may not have been updated"
+              );
+            }
+
+            closeModal();
+            loadEmployees(); // Reload the table
+          } else {
+            const error = await response.text();
+            showError("Failed to update employee: " + error);
+          }
+        } catch (error) {
+          showError("Error updating employee: " + error.message);
+        }
+      }
+
+      // Delete employee
+      async function deleteEmployee(employeeId) {
+        const employee = employees.find((emp) => emp.id === employeeId);
+        if (!employee) return;
+
+        if (
+          confirm(
+            `Are you sure you want to delete ${employee.firstName} ${employee.lastName}?`
+          )
+        ) {
+          try {
+            const response = await fetch(`/api/admin/employees/${employeeId}`, {
+              method: "DELETE",
+            });
+
+            if (response.ok) {
+              showMessage("Employee deleted successfully");
+              loadEmployees(); // Reload the table
+            } else {
+              showError("Failed to delete employee");
+            }
+          } catch (error) {
+            showError("Error deleting employee: " + error.message);
+          }
+        }
+      }
+
+      // Delete document
+      async function deleteDocument(documentId) {
+        if (confirm("Are you sure you want to delete this document?")) {
+          try {
+            const response = await fetch(`/api/admin/documents/${documentId}`, {
+              method: "DELETE",
+            });
+
+            if (response.ok) {
+              showMessage("Document deleted successfully");
+              // Refresh the current employee edit view
+              editEmployee(currentEmployee.id);
+              loadEmployees(); // Reload to update document counts
+            } else {
+              showError("Failed to delete document");
+            }
+          } catch (error) {
+            showError("Error deleting document: " + error.message);
+          }
+        }
+      }
+
+      // Show loading state
+      function showLoading() {
+        document.getElementById("employeeTableBody").innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <br>Loading employees...
+                    </td>
+                </tr>
+            `;
+      }
+
+      // Show error message
+      function showError(message) {
+        document.getElementById("employeeTableBody").innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 10px;"></i>
+                        <br>${message}
+                    </td>
+                </tr>
+            `;
+      }
+
+      // Close modal
+      function closeModal() {
+        document.getElementById("employeeModal").style.display = "none";
+      }
+
+      // Show add employee modal (placeholder)
+      function showAddEmployeeModal() {
+        alert("Add Employee functionality will be implemented here.");
+      }
+
+      // === DOCUMENT TYPE MANAGEMENT FUNCTIONS ===
+
+      let documentTypes = [];
+      let currentDocumentType = null;
+
+      // Load document types from API
+      async function loadDocumentTypes() {
+        try {
+          showDocumentTypesLoading();
+          const response = await fetch("/api/admin/document-types");
+          if (response.ok) {
+            documentTypes = await response.json();
+            displayDocumentTypes();
+          } else {
+            showDocumentTypesError("Failed to load document types");
+          }
+        } catch (error) {
+          showDocumentTypesError(
+            "Error loading document types: " + error.message
+          );
+        }
+      }
+
+      // Display document types in table
+      function displayDocumentTypes() {
+        const tbody = document.getElementById("documentTypesTableBody");
+
+        if (documentTypes.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;"></i>
+                <br>No document types found. Click "Add Document Type" to create the first one.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = documentTypes
+          .map(
+            (docType) => `
+              <tr>
+                <td>
+                  <div style="font-weight: 600; color: #1e3c72;">${
+                    docType.name
+                  }</div>
+                </td>
+                <td>${docType.description || "No description"}</td>
+                <td>
+                  <span class="status-badge ${
+                    docType.active ? "status-accepte" : "status-refuse"
+                  }">
+                    ${docType.active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td>${formatDateSafe(docType.createdAt)}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action btn-edit" onclick="editDocumentType('${
+                      docType.id
+                    }')">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-action ${
+                      docType.active ? "btn-delete" : "btn-view"
+                    }" 
+                            onclick="toggleDocumentTypeStatus('${docType.id}')">
+                      <i class="fas ${
+                        docType.active ? "fa-ban" : "fa-check"
+                      }"></i> 
+                      ${docType.active ? "Deactivate" : "Activate"}
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteDocumentType('${
+                      docType.id
+                    }')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      // Show add document type modal
+      function showAddDocumentTypeModal() {
+        currentDocumentType = null;
+        document.getElementById("documentTypeModalTitle").textContent =
+          "Add Document Type";
+        document.getElementById("documentTypeName").value = "";
+        document.getElementById("documentTypeDescription").value = "";
+        document.getElementById("documentTypeActive").checked = true;
+        document.getElementById("documentTypeModal").style.display = "block";
+      }
+
+      // Edit document type
+      function editDocumentType(docTypeId) {
+        const docType = documentTypes.find((dt) => dt.id === docTypeId);
+        if (!docType) return;
+
+        currentDocumentType = docType;
+        document.getElementById("documentTypeModalTitle").textContent =
+          "Edit Document Type";
+        document.getElementById("documentTypeName").value = docType.name;
+        document.getElementById("documentTypeDescription").value =
+          docType.description || "";
+        document.getElementById("documentTypeActive").checked = docType.active;
+        document.getElementById("documentTypeModal").style.display = "block";
+      }
+
+      // Delete document type
+      async function deleteDocumentType(docTypeId) {
+        const docType = documentTypes.find((dt) => dt.id === docTypeId);
+        if (!docType) return;
+
+        if (
+          confirm(
+            `Are you sure you want to delete the document type "${docType.name}"?`
+          )
+        ) {
+          try {
+            const response = await fetch(
+              `/api/admin/document-types/${docTypeId}`,
+              {
+                method: "DELETE",
+              }
+            );
+
+            if (response.ok) {
+              showMessage("Document type deleted successfully");
+              loadDocumentTypes();
+            } else {
+              const error = await response.text();
+              showError("Failed to delete document type: " + error);
+            }
+          } catch (error) {
+            showError("Error deleting document type: " + error.message);
+          }
+        }
+      }
+
+      // Toggle document type status
+      async function toggleDocumentTypeStatus(docTypeId) {
+        try {
+          const response = await fetch(
+            `/api/admin/document-types/${docTypeId}/toggle-status`,
+            {
+              method: "PUT",
+            }
+          );
+
+          if (response.ok) {
+            showMessage("Document type status updated successfully");
+            loadDocumentTypes();
+          } else {
+            const error = await response.text();
+            showError("Failed to update document type status: " + error);
+          }
+        } catch (error) {
+          showError("Error updating document type status: " + error.message);
+        }
+      }
+
+      // Close document type modal
+      function closeDocumentTypeModal() {
+        document.getElementById("documentTypeModal").style.display = "none";
+      }
+
+      // Show loading state for document types
+      function showDocumentTypesLoading() {
+        document.getElementById("documentTypesTableBody").innerHTML = `
+          <tr>
+            <td colspan="5" class="loading">
+              <i class="fas fa-spinner"></i>
+              <br>Loading document types...
+            </td>
+          </tr>
+        `;
+      }
+
+      // Show error message for document types
+      function showDocumentTypesError(message) {
+        document.getElementById("documentTypesTableBody").innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 40px; color: #dc3545;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 10px;"></i>
+              <br>${message}
+            </td>
+          </tr>
+        `;
+      }
+
+      // Global sync data function
+      async function syncData() {
+        try {
+          const syncBtn = document.querySelector(".sync-btn");
+          const originalText = syncBtn.innerHTML;
+
+          // Show loading state
+          syncBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+          syncBtn.disabled = true;
+
+          const response = await fetch("/api/admin/sync", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            showMessage(result.message || "Data synchronized successfully");
+
+            // Reload data
+            loadEmployees();
+          } else {
+            const error = await response.json();
+            showMessage(error.error || "Failed to sync data");
+          }
+        } catch (error) {
+          showMessage("Error syncing data: " + error.message);
+        } finally {
+          // Restore button state
+          const syncBtn = document.querySelector(".sync-btn");
+          syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Data';
+          syncBtn.disabled = false;
+        }
+      }
+
+      // Show error message
+      function showError(message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #dc3545;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 4px;
+          z-index: 1000;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+          if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+          }
+        }, 3000);
+      }
+
+      // Show success message
+      function showMessage(message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 4px;
+          z-index: 1000;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+          if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+          }
+        }, 3000);
+      }
+
+      // Navigation handling
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load initial data
+        loadEmployees();
+
+        // Show employee table by default
+        document.getElementById("employeeTable").style.display = "block";
+        document.getElementById("welcomeMessage").style.display = "none";
+        document.getElementById("mainTitle").textContent = "LEOIN Management";
+        document.getElementById("sectionTitle").textContent =
+          "Employee Management";
+        document.getElementById("addEmployeeBtn").style.display = "inline-flex";
+
+        // Handle navigation clicks
+        document
+          .getElementById("employeesLink")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Update active navigation
+            document
+              .querySelectorAll(".nav-menu a")
+              .forEach((link) => link.classList.remove("active"));
+            this.classList.add("active");
+
+            // Show employee table
+            document.getElementById("mainContentSection").style.display =
+              "block";
+            document.getElementById("employeeTable").style.display = "block";
+            document.getElementById("pendingRequestsSection").style.display =
+              "none";
+            document.getElementById("documentTypesSection").style.display =
+              "none";
+            document.getElementById("welcomeMessage").style.display = "none";
+            document.getElementById("sectionTitle").textContent =
+              "Employee Management";
+            document.getElementById("addEmployeeBtn").style.display =
+              "inline-flex";
+
+            // Load fresh data
+            loadEmployees();
+          });
+
+        // Handle pending requests navigation
+        document
+          .getElementById("pendingRequestsLink")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Update active navigation
+            document
+              .querySelectorAll(".nav-menu a")
+              .forEach((link) => link.classList.remove("active"));
+            this.classList.add("active");
+
+            // Hide employee section and show pending requests
+            document.getElementById("mainContentSection").style.display =
+              "none";
+            document.getElementById("employeeTable").style.display = "none";
+            document.getElementById("pendingRequestsSection").style.display =
+              "block";
+            document.getElementById("documentTypesSection").style.display =
+              "none";
+            document.getElementById("welcomeMessage").style.display = "none";
+            document.getElementById("addEmployeeBtn").style.display = "none";
+
+            // Load pending requests
+            loadPendingRequests();
+          });
+
+        // Handle document types navigation
+        document
+          .getElementById("documentTypesLink")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Update active navigation
+            document
+              .querySelectorAll(".nav-menu a")
+              .forEach((link) => link.classList.remove("active"));
+            this.classList.add("active");
+
+            // Hide other sections and show document types
+            document.getElementById("mainContentSection").style.display =
+              "none";
+            document.getElementById("employeeTable").style.display = "none";
+            document.getElementById("pendingRequestsSection").style.display =
+              "none";
+            document.getElementById("documentTypesSection").style.display =
+              "block";
+            document.getElementById("welcomeMessage").style.display = "none";
+            document.getElementById("addEmployeeBtn").style.display = "none";
+
+            // Load document types
+            loadDocumentTypes();
+          });
+
+        // Document type form submission
+        document
+          .getElementById("documentTypeForm")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const formData = {
+              name: document.getElementById("documentTypeName").value,
+              description: document.getElementById("documentTypeDescription")
+                .value,
+              active: document.getElementById("documentTypeActive").checked,
+            };
+
+            try {
+              const isEdit = currentDocumentType !== null;
+              const url = isEdit
+                ? `/api/admin/document-types/${currentDocumentType.id}`
+                : "/api/admin/document-types";
+              const method = isEdit ? "PUT" : "POST";
+
+              const response = await fetch(url, {
+                method: method,
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+              });
+
+              if (response.ok) {
+                showMessage(
+                  `Document type ${isEdit ? "updated" : "created"} successfully`
+                );
+                closeDocumentTypeModal();
+                loadDocumentTypes();
+              } else {
+                const error = await response.text();
+                showError(
+                  `Failed to ${isEdit ? "update" : "create"} document type: ` +
+                    error
+                );
+              }
+            } catch (error) {
+              showError(
+                `Error ${
+                  currentDocumentType ? "updating" : "creating"
+                } document type: ` + error.message
+              );
+            }
+          });
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+          const employeeModal = document.getElementById("employeeModal");
+          const documentTypeModal =
+            document.getElementById("documentTypeModal");
+          if (event.target === employeeModal) {
+            closeModal();
+          }
+          if (event.target === documentTypeModal) {
+            closeDocumentTypeModal();
+          }
+        };
+      });
+
+      // Logout function - moved outside DOMContentLoaded to be globally accessible
+      function logout() {
+        // Clear session storage
+        sessionStorage.removeItem('currentAdmin');
+        sessionStorage.removeItem('authToken');
+        // Redirect to main page
+        window.location.href = '/';
+      }
+    </script>
+  </body>
+</html>
