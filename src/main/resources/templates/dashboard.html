@@ -914,7 +914,7 @@
         <!-- News Section -->
         <div class="content-section" id="newsSection" style="display: none">
           <div class="section-header">
-            <h2 id="newsTitle">Actualités</h2>
+            <h2 id="newsSectionTitle">Actualités</h2>
             <button
               class="btn-primary"
               id="addNewsBtn"
@@ -1372,6 +1372,44 @@
                 ></textarea>
               </div>
 
+              <!-- Image upload section -->
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+                  Image (optionnelle):
+                </label>
+                <div style="border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center;">
+                  <input 
+                    type="file" 
+                    id="newsImageFile" 
+                    accept="image/*" 
+                    style="display: none;"
+                    onchange="handleImageUpload()"
+                  />
+                  <div id="imageUploadArea" onclick="document.getElementById('newsImageFile').click()" style="cursor: pointer;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #ddd; margin-bottom: 10px;"></i>
+                    <p style="margin: 0; color: #666;">Cliquez pour sélectionner une image</p>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">
+                      Formats supportés: JPG, PNG, GIF (max 5MB)
+                    </p>
+                  </div>
+                  <div id="imagePreviewArea" style="display: none;">
+                    <img id="imagePreview" style="max-width: 100%; max-height: 200px; border-radius: 4px; margin-bottom: 10px;" />
+                    <p id="imageInfo" style="margin: 0; font-size: 14px; color: #666;"></p>
+                    <button type="button" onclick="removeImage()" style="margin-top: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                      <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                  </div>
+                  <div id="uploadProgress" style="display: none; margin-top: 10px;">
+                    <div style="background: #e9ecef; border-radius: 4px; overflow: hidden;">
+                      <div id="progressBar" style="background: #007bff; height: 6px; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Upload en cours...</p>
+                  </div>
+                </div>
+                <input type="hidden" id="newsImageUrl" />
+                <input type="hidden" id="newsImageName" />
+              </div>
+
               <div style="margin-bottom: 20px">
                 <label
                   style="display: block; margin-bottom: 5px; font-weight: bold"
@@ -1389,6 +1427,47 @@
                     border-radius: 4px;
                   "
                 ></textarea>
+              </div>
+
+              <!-- Image Upload Section -->
+              <div style="margin-bottom: 20px">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold">
+                  Image (optionnelle):
+                </label>
+                
+                <!-- Image Upload Area -->
+                <div id="imageUploadArea" style="border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer;" onclick="document.getElementById('newsImageFile').click();">
+                  <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #ccc; margin-bottom: 10px;"></i>
+                  <p style="margin: 0; color: #666;">Cliquez ici ou glissez une image</p>
+                  <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">Formats acceptés: JPG, PNG, GIF (max 5MB)</p>
+                  <input type="file" id="newsImageFile" accept="image/*" style="display: none;" onchange="handleImageUpload()" />
+                </div>
+                
+                <!-- Upload Progress -->
+                <div id="uploadProgress" style="display: none; margin-top: 10px;">
+                  <div style="background: #e9ecef; border-radius: 4px; overflow: hidden;">
+                    <div id="progressBar" style="background: #007bff; height: 6px; width: 100%; transition: width 0.3s;"></div>
+                  </div>
+                  <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Upload en cours...</p>
+                </div>
+                
+                <!-- Image Preview -->
+                <div id="imagePreviewArea" style="display: none; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; padding: 15px;">
+                  <div style="display: flex; align-items: center; gap: 15px;">
+                    <img id="imagePreview" src="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+                    <div style="flex: 1;">
+                      <p id="imageInfo" style="margin: 0; font-weight: bold; color: #333;">image.jpg</p>
+                      <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">Image uploadée avec succès</p>
+                    </div>
+                    <button type="button" onclick="removeImage()" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Hidden fields for image data -->
+                <input type="hidden" id="newsImageUrl" />
+                <input type="hidden" id="newsImageName" />
               </div>
 
               <div style="display: flex; gap: 10px; justify-content: flex-end">
@@ -2726,31 +2805,28 @@
           .map(
             (news) => `
           <tr>
-            <td>${news.title}</td>
             <td>
-              <span class="badge badge-info">${news.category}</span>
+              ${news.imageUrl ? `<img src="${news.imageUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px;" />` : ''}
+              ${news.title || 'Sans titre'}
+            </td>
+            <td>
+              <span class="badge badge-info">${news.category || 'Non définie'}</span>
             </td>
             <td>
               <span class="badge ${getPriorityBadgeClass(news.priority)}">${
-              news.priority
+              news.priority || 'Normal'
             }</span>
             </td>
             <td>${news.targetLocation || "Toutes"}</td>
             <td>${news.targetDepartment || "Tous"}</td>
             <td>
               <span class="badge ${
-                news.isActive === true
-                  ? "badge-success"
-                  : "badge-warning"
+                news.isActive === true ? "badge-success" : "badge-warning"
               }">
-                ${
-                  news.isActive === true
-                    ? "Publié"
-                    : "Inactif"
-                }
+                ${news.isActive === true ? "Publié" : "Inactif"}
               </span>
             </td>
-            <td>${news.authorName || 'Système'}</td>
+            <td>${news.authorName || "Système"}</td>
             <td>${formatDate(news.createdAt)}</td>
             <td>
               <button class="btn btn-sm btn-primary" onclick="editNews('${
@@ -2804,6 +2880,12 @@
             "Ajouter une actualité";
           document.getElementById("newsForm").reset();
           document.getElementById("newsId").value = "";
+          
+          // Reset image upload area
+          document.getElementById("newsImageUrl").value = "";
+          document.getElementById("newsImageName").value = "";
+          document.getElementById("imagePreviewArea").style.display = "none";
+          document.getElementById("imageUploadArea").style.display = "block";
 
           // Show modal first
           const modalElement = document.getElementById("newsModal");
@@ -2989,7 +3071,21 @@
               document.getElementById("newsTargetDepartment").value || null,
             summary: document.getElementById("newsSummary").value,
             content: document.getElementById("newsContent").value,
+            imageUrl: document.getElementById("newsImageUrl").value || null,
+            imageName: document.getElementById("newsImageName").value || null,
           };
+
+          // Debug: vérifier que le titre est bien récupéré
+          console.log("Titre récupéré:", newsData.title);
+          console.log("Données complètes:", newsData);
+
+          // Validation basique
+          if (!newsData.title || newsData.title.trim() === "") {
+            alert("Le titre est obligatoire !");
+            return;
+          }
+
+          console.log("News data being sent:", newsData);
 
           const url = isEdit ? `/api/news/${newsId}` : "/api/news";
           const method = isEdit ? "PUT" : "POST";
@@ -3004,10 +3100,19 @@
           });
 
           if (response.ok) {
-            const modal = bootstrap.Modal.getInstance(
-              document.getElementById("newsModal")
-            );
-            modal.hide();
+            // Hide modal properly
+            const newsModal = document.getElementById('newsModal');
+            const modal = bootstrap.Modal.getInstance(newsModal);
+            if (modal) {
+              modal.hide();
+            } else {
+              // If modal instance doesn't exist, hide manually
+              newsModal.style.display = 'none';
+              document.body.classList.remove('modal-open');
+              const backdrops = document.querySelectorAll('.modal-backdrop');
+              backdrops.forEach(backdrop => backdrop.remove());
+            }
+            
             loadNews();
             alert(
               isEdit
@@ -3101,6 +3206,93 @@
         }
       }
 
+      // Show news loading
+      function showNewsLoading() {
+        document.getElementById("newsTableBody").innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #007bff;"></i>
+              <br><span style="color: #666; margin-top: 10px;">Chargement des actualités...</span>
+            </td>
+          </tr>
+        `;
+      }
+
+      // Image upload functions
+      async function handleImageUpload() {
+        const fileInput = document.getElementById('newsImageFile');
+        const file = fileInput.files[0];
+        
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert('Veuillez sélectionner une image valide');
+          fileInput.value = '';
+          return;
+        }
+        
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('La taille du fichier ne doit pas dépasser 5MB');
+          fileInput.value = '';
+          return;
+        }
+        
+        try {
+          // Show upload progress
+          document.getElementById('imageUploadArea').style.display = 'none';
+          document.getElementById('uploadProgress').style.display = 'block';
+          
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const token = localStorage.getItem('adminToken');
+          const response = await fetch('/api/news/upload-image', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Show image preview
+            document.getElementById('newsImageUrl').value = result.imageUrl;
+            document.getElementById('newsImageName').value = result.imageName;
+            
+            const preview = document.getElementById('imagePreview');
+            preview.src = result.imageUrl;
+            
+            document.getElementById('imageInfo').textContent = `${result.imageName} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('imagePreviewArea').style.display = 'block';
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Erreur lors de l\'upload de l\'image: ' + error.message);
+          
+          // Reset upload area
+          document.getElementById('uploadProgress').style.display = 'none';
+          document.getElementById('imageUploadArea').style.display = 'block';
+          fileInput.value = '';
+        }
+      }
+      
+      function removeImage() {
+        document.getElementById('newsImageUrl').value = '';
+        document.getElementById('newsImageName').value = '';
+        document.getElementById('newsImageFile').value = '';
+        
+        document.getElementById('imagePreviewArea').style.display = 'none';
+        document.getElementById('imageUploadArea').style.display = 'block';
+      }
+      
       // Show news loading
       function showNewsLoading() {
         document.getElementById("newsTableBody").innerHTML = `

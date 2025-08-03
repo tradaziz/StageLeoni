@@ -24,18 +24,6 @@ public interface NewsRepository extends MongoRepository<News, String> {
     List<News> findAllPublishedNews();
     
     /**
-     * Find all active news (legacy format)
-     */
-    @Query("{'isActive': true}")
-    List<News> findAllActiveNews();
-    
-    /**
-     * Find active news by location and department (legacy format)
-     */
-    @Query("{'isActive': true, 'targetLocation': ?0, 'targetDepartment': ?1}")
-    List<News> findActiveNewsByLocationAndDepartment(String targetLocation, String targetDepartment);
-    
-    /**
      * Find news by author (admin)
      */
     List<News> findByAuthorRef(String authorRef);

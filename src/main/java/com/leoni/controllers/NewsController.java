@@ -69,11 +69,22 @@ public class NewsController {
             
             // Create news object
             News news = new News();
-            news.setTitle((String) request.get("title"));
+            String title = (String) request.get("title");
+            logger.info("Title received from frontend: '{}'", title);
+            
+            news.setTitle(title);
             news.setContent((String) request.get("content"));
             news.setSummary((String) request.get("summary"));
             news.setCategory((String) request.get("category"));
             news.setPriority((String) request.get("priority"));
+            
+            // Handle image URL if provided
+            if (request.containsKey("imageUrl")) {
+                news.setImageUrl((String) request.get("imageUrl"));
+            }
+            if (request.containsKey("imageName")) {
+                news.setImageName((String) request.get("imageName"));
+            }
             
             // Handle targeting based on role
             if ("SUPERADMIN".equals(role)) {
@@ -398,6 +409,82 @@ public class NewsController {
             logger.error("Error deleting news", e);
             return ResponseEntity.status(500).body(
                 Map.of("success", false, "message", "Erreur lors de la suppression: " + e.getMessage())
+            );
+        }
+    }
+    
+    /**
+     * Upload image for news
+     */
+    @PostMapping("/upload-image")
+    public ResponseEntity<Map<String, Object>> uploadImage(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            @RequestHeader(value = "Authorization", required = false) String authToken) {
+        
+        try {
+            // Extract and validate token
+            String token = extractToken(authToken);
+            if (token == null || !authService.validateToken(token)) {
+                return ResponseEntity.status(401).body(
+                    Map.of("success", false, "message", "Token d'authentification requis")
+                );
+            }
+            
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    Map.of("success", false, "message", "Aucun fichier sélectionné")
+                );
+            }
+            
+            // Check file type
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().body(
+                    Map.of("success", false, "message", "Le fichier doit être une image")
+                );
+            }
+            
+            // Check file size (max 5MB)
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.badRequest().body(
+                    Map.of("success", false, "message", "La taille du fichier ne doit pas dépasser 5MB")
+                );
+            }
+            
+            // Create uploads directory if it doesn't exist
+            String uploadDir = System.getProperty("user.dir") + "/uploads/news-images/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                boolean created = dir.mkdirs();
+                logger.info("Created upload directory: " + uploadDir + " - " + created);
+            }
+            
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString() + extension;
+            String filePath = uploadDir + filename;
+            
+            // Save file
+            file.transferTo(new java.io.File(filePath));
+            
+            // Return file URL
+            String fileUrl = "/uploads/news-images/" + filename;
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Image uploadée avec succès",
+                "imageUrl", fileUrl,
+                "imageName", originalFilename
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Error uploading image", e);
+            return ResponseEntity.status(500).body(
+                Map.of("success", false, "message", "Erreur lors de l'upload: " + e.getMessage())
             );
         }
     }

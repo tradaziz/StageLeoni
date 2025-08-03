@@ -18,6 +18,10 @@ public class News {
     private String category;
     private String priority; // normal, important, urgent
     
+    // Image support
+    private String imageUrl; // URL or path to the image
+    private String imageName; // Original filename
+    
     private Visibility visibility;
     
     // Backward compatibility with existing data

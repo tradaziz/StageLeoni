@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 // Allow health check endpoints
                 .requestMatchers("/health/**").permitAll()
+                // Allow uploads directory
+                .requestMatchers("/uploads/**").permitAll()
                 // Allow any other requests
                 .anyRequest().permitAll()
             );
