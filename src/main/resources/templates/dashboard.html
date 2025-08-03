@@ -717,6 +717,11 @@
                 ><i class="fas fa-users"></i> Employees</a
               >
             </li>
+            <li id="adminsMenuLi" style="display: none;">
+              <a href="#admins" id="adminsLink"
+                ><i class="fas fa-user-shield"></i> Admins</a
+              >
+            </li>
             <li>
               <a href="#pending-requests" id="pendingRequestsLink"
                 ><i class="fas fa-user-clock"></i> Pending Requests</a
@@ -787,6 +792,99 @@
               <i class="fas fa-plus"></i>
               Add Employee
             </button>
+          </div>
+
+          <!-- Employee Filters -->
+          <div
+            id="employeeFilters"
+            class="filters-container"
+            style="
+              margin-bottom: 20px;
+              padding: 15px;
+              background: #f8f9fa;
+              border-radius: 8px;
+            "
+          >
+            <h4 style="margin-bottom: 15px; color: #1e3c72">
+              Filtres des Employés
+            </h4>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+              "
+            >
+              <div>
+                <label
+                  style="display: block; margin-bottom: 5px; font-weight: bold"
+                  >Department:</label
+                >
+                <select
+                  id="employeeDepartmentFilter"
+                  style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                  "
+                  onchange="applyEmployeeFilters()"
+                >
+                  <option value="">Tous les départements</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  style="display: block; margin-bottom: 5px; font-weight: bold"
+                  >Location:</label
+                >
+                <select
+                  id="employeeLocationFilter"
+                  style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                  "
+                  onchange="applyEmployeeFilters()"
+                >
+                  <option value="">Toutes les locations</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  style="display: block; margin-bottom: 5px; font-weight: bold"
+                  >Position:</label
+                >
+                <select
+                  id="employeePositionFilter"
+                  style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                  "
+                  onchange="applyEmployeeFilters()"
+                >
+                  <option value="">Toutes les positions</option>
+                </select>
+              </div>
+              <div style="display: flex; align-items: end">
+                <button
+                  onclick="clearEmployeeFilters()"
+                  style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                  "
+                >
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
           </div>
 
           <div id="employeeTable" class="table-container">
@@ -981,47 +1079,7 @@
                   <option value="">Tous les départements</option>
                 </select>
               </div>
-              <div>
-                <label
-                  style="display: block; margin-bottom: 5px; font-weight: bold"
-                  >Catégorie:</label
-                >
-                <select
-                  id="filterCategory"
-                  style="
-                    width: 100%;
-                    padding: 8px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                  "
-                >
-                  <option value="">Toutes les catégories</option>
-                  <option value="general">Général</option>
-                  <option value="safety">Sécurité</option>
-                  <option value="hr">RH</option>
-                  <option value="technical">Technique</option>
-                </select>
-              </div>
-              <div>
-                <label
-                  style="display: block; margin-bottom: 5px; font-weight: bold"
-                  >Priorité:</label
-                >
-                <select
-                  id="filterPriority"
-                  style="
-                    width: 100%;
-                    padding: 8px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                  "
-                >
-                  <option value="">Toutes les priorités</option>
-                  <option value="normal">Normal</option>
-                  <option value="important">Important</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
+
               <div style="display: flex; align-items: end">
                 <button
                   onclick="applyNewsFilters()"
@@ -1057,6 +1115,51 @@
               </thead>
               <tbody id="newsTableBody">
                 <!-- News will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Admins Section (SuperAdmin only) -->
+        <div class="content-section" id="adminsSection" style="display: none">
+          <div class="section-header">
+            <h2 id="adminsSectionTitle">Gestion des Admins</h2>
+            <div style="display: flex; gap: 10px;">
+              <button
+                class="btn-primary"
+                id="addAdminBtn"
+                onclick="showAddAdminModal()"
+              >
+                <i class="fas fa-plus"></i>
+                Ajouter Admin
+              </button>
+              <button
+                class="btn btn-info"
+                onclick="loadAdminsStats()"
+              >
+                <i class="fas fa-chart-bar"></i>
+                Statistiques
+              </button>
+            </div>
+          </div>
+
+          <div id="adminsTable" class="table-container">
+            <table class="employees-table">
+              <thead>
+                <tr>
+                  <th>Nom d'utilisateur</th>
+                  <th>Prénom</th>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Département</th>
+                  <th>Location</th>
+                  <th>Statut</th>
+                  <th>Dernière connexion</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminsTableBody">
+                <!-- Admins will be loaded here -->
               </tbody>
             </table>
           </div>
@@ -1507,48 +1610,74 @@
             throw new Error("No authentication token found");
           }
 
-          // Get current user info from token
-          let adminUsername = sessionStorage.getItem("currentAdmin");
+          // Check if user is SuperAdmin
+          const userRole = sessionStorage.getItem("userRole");
+          const isSuperAdmin = userRole === "SUPERADMIN";
 
-          if (!adminUsername) {
-            console.log("loadEmployees - Getting username from API");
-            const userResponse = await fetch("/api/auth/user-info", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+          console.log("loadEmployees - User role:", userRole, "isSuperAdmin:", isSuperAdmin);
 
-            if (userResponse.ok) {
-              const userInfo = await userResponse.json();
-              adminUsername = userInfo.username;
-              sessionStorage.setItem("currentAdmin", adminUsername);
-              console.log(
-                "loadEmployees - Got username from API:",
-                adminUsername
-              );
+          if (isSuperAdmin) {
+            // SuperAdmin: Load ALL employees
+            console.log("Loading ALL employees for SuperAdmin");
+            const response = await fetch("/api/superadmin/employees");
+            
+            if (response.ok) {
+              employees = await response.json();
+              console.log("SuperAdmin loaded", employees.length, "employees");
+              originalEmployees = [...employees]; // Store original data for filtering
+              displayEmployees();
+              // Load filter options after loading employees
+              await loadEmployeeFilterOptions();
             } else {
-              throw new Error(
-                `Failed to get user info: ${userResponse.status}`
-              );
+              showError("Failed to load employees for SuperAdmin");
             }
-          }
-
-          console.log("loadEmployees - Using adminUsername:", adminUsername);
-
-          // Update the admin name in the header
-          document.getElementById(
-            "currentAdminName"
-          ).textContent = `Admin: ${adminUsername}`;
-
-          console.log("Loading employees for admin:", adminUsername);
-          const response = await fetch(
-            `/api/admin/employees?adminUsername=${adminUsername}`
-          );
-          if (response.ok) {
-            employees = await response.json();
-            displayEmployees(); // No need to await anymore
           } else {
-            showError("Failed to load employees");
+            // Regular Admin: Load filtered employees
+            let adminUsername = sessionStorage.getItem("currentAdmin");
+
+            if (!adminUsername) {
+              console.log("loadEmployees - Getting username from API");
+              const userResponse = await fetch("/api/auth/user-info", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+
+              if (userResponse.ok) {
+                const userInfo = await userResponse.json();
+                adminUsername = userInfo.username;
+                sessionStorage.setItem("currentAdmin", adminUsername);
+                console.log(
+                  "loadEmployees - Got username from API:",
+                  adminUsername
+                );
+              } else {
+                throw new Error(
+                  `Failed to get user info: ${userResponse.status}`
+                );
+              }
+            }
+
+            console.log("loadEmployees - Using adminUsername:", adminUsername);
+
+            // Update the admin name in the header
+            document.getElementById(
+              "currentAdminName"
+            ).textContent = `Admin: ${adminUsername}`;
+
+            console.log("Loading employees for admin:", adminUsername);
+            const response = await fetch(
+              `/api/admin/employees?adminUsername=${adminUsername}`
+            );
+            if (response.ok) {
+              employees = await response.json();
+              originalEmployees = [...employees]; // Store original data for filtering
+              displayEmployees();
+              // Load filter options after loading employees
+              await loadEmployeeFilterOptions();
+            } else {
+              showError("Failed to load employees");
+            }
           }
         } catch (error) {
           showError("Error loading employees: " + error.message);
@@ -2609,6 +2738,19 @@
 
           // Store user information in session storage
           sessionStorage.setItem("currentAdmin", userInfo.username);
+          sessionStorage.setItem("userRole", userInfo.role);
+
+          // Show/hide admin menu based on user role
+          const adminMenuLink = document.querySelector('a[onclick="showAdminsSection()"]');
+          if (adminMenuLink) {
+            if (userInfo.role === "SUPERADMIN") {
+              adminMenuLink.style.display = "block";
+              console.log("checkAuthentication - Admin menu shown for SuperAdmin");
+            } else {
+              adminMenuLink.style.display = "none";
+              console.log("checkAuthentication - Admin menu hidden for regular admin");
+            }
+          }
 
           // After successful authentication, load the data
           console.log("checkAuthentication - Now loading employees...");
@@ -3438,6 +3580,8 @@
               "none";
             document.getElementById("documentTypesSection").style.display =
               "none";
+            document.getElementById("newsSection").style.display = "none";
+            document.getElementById("adminsSection").style.display = "none";
             document.getElementById("welcomeMessage").style.display = "none";
             document.getElementById("sectionTitle").textContent =
               "Employee Management";
@@ -3447,6 +3591,33 @@
             // Load fresh data
             loadEmployees();
           });
+
+        // Handle admins navigation (SuperAdmin only)
+        const adminsLink = document.getElementById("adminsLink");
+        if (adminsLink) {
+          adminsLink.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Update active navigation
+            document
+              .querySelectorAll(".nav-menu a")
+              .forEach((link) => link.classList.remove("active"));
+            this.classList.add("active");
+
+            // Show admins section
+            document.getElementById("mainContentSection").style.display = "none";
+            document.getElementById("employeeTable").style.display = "none";
+            document.getElementById("pendingRequestsSection").style.display = "none";
+            document.getElementById("documentTypesSection").style.display = "none";
+            document.getElementById("newsSection").style.display = "none";
+            document.getElementById("adminsSection").style.display = "block";
+            document.getElementById("welcomeMessage").style.display = "none";
+            document.getElementById("addEmployeeBtn").style.display = "none";
+
+            // Load admins
+            loadAdmins();
+          });
+        }
 
         // Handle pending requests navigation
         document
@@ -3529,6 +3700,7 @@
 
             // Check user role and configure news section
             checkUserRoleAndConfigureNewsSection();
+            loadNewsFilterOptions(); // Load filter options
             loadNews();
           });
 
@@ -3629,11 +3801,386 @@
         }
       });
 
+      // ==================== NAVIGATION FUNCTIONS ====================
+
+      // Show admins section (SuperAdmin only)
+      function showAdminsSection() {
+        console.log("showAdminsSection called");
+        
+        // Update active navigation
+        document.querySelectorAll(".nav-menu a").forEach((link) => link.classList.remove("active"));
+        const adminLink = document.querySelector('a[onclick="showAdminsSection()"]');
+        if (adminLink) {
+          adminLink.classList.add("active");
+        }
+
+        // Hide all other sections
+        document.getElementById("mainContentSection").style.display = "none";
+        document.getElementById("employeeTable").style.display = "none";
+        document.getElementById("pendingRequestsSection").style.display = "none";
+        document.getElementById("documentTypesSection").style.display = "none";
+        document.getElementById("newsSection").style.display = "none";
+        document.getElementById("welcomeMessage").style.display = "none";
+        document.getElementById("addEmployeeBtn").style.display = "none";
+        
+        // Show admins section
+        document.getElementById("adminsSection").style.display = "block";
+
+        // Load admins data
+        loadAdmins();
+      }
+
+      // ==================== ADMINS MANAGEMENT FUNCTIONS (SuperAdmin only) ====================
+      
+      let admins = [];
+
+      // Load all admins (SuperAdmin only)
+      async function loadAdmins() {
+        try {
+          showAdminsLoading();
+          
+          const userRole = sessionStorage.getItem("userRole");
+          if (userRole !== "SUPERADMIN") {
+            showAdminsError("Access denied: SuperAdmin role required");
+            return;
+          }
+
+          console.log("Loading all admins for SuperAdmin");
+          const response = await fetch("/api/superadmin/admins");
+          
+          if (response.ok) {
+            admins = await response.json();
+            console.log("SuperAdmin loaded", admins.length, "admins");
+            displayAdmins();
+          } else {
+            showAdminsError("Failed to load admins");
+          }
+        } catch (error) {
+          showAdminsError("Error loading admins: " + error.message);
+        }
+      }
+
+      // Display admins in table
+      function displayAdmins() {
+        const tbody = document.getElementById("adminsTableBody");
+
+        if (admins.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
+                <i class="fas fa-user-shield" style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;"></i>
+                <br>Aucun admin trouvé.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = admins
+          .map(admin => `
+            <tr>
+              <td>${admin.username}</td>
+              <td>${admin.firstName || 'N/A'}</td>
+              <td>${admin.lastName || 'N/A'}</td>
+              <td>${admin.email || 'N/A'}</td>
+              <td>${admin.department || 'N/A'}</td>
+              <td>${admin.location || 'N/A'}</td>
+              <td>
+                <span class="badge ${admin.active ? 'badge-success' : 'badge-danger'}">
+                  ${admin.active ? 'Actif' : 'Inactif'}
+                </span>
+              </td>
+              <td>${admin.lastLogin ? formatDateSafe(admin.lastLogin) : 'Jamais'}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-action btn-view" onclick="viewAdmin('${admin.id}')">
+                    <i class="fas fa-eye"></i> Voir
+                  </button>
+                  <button class="btn-action btn-edit" onclick="editAdmin('${admin.id}')">
+                    <i class="fas fa-edit"></i> Modifier
+                  </button>
+                  <button class="btn-action ${admin.active ? 'btn-warning' : 'btn-success'}" 
+                          onclick="toggleAdminStatus('${admin.id}', ${admin.active})">
+                    <i class="fas fa-${admin.active ? 'pause' : 'play'}"></i> 
+                    ${admin.active ? 'Désactiver' : 'Activer'}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `)
+          .join("");
+      }
+
+      // Toggle admin status
+      async function toggleAdminStatus(adminId, currentStatus) {
+        const action = currentStatus ? 'désactiver' : 'activer';
+        if (!confirm(`Êtes-vous sûr de vouloir ${action} cet admin ?`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/admin/${adminId}/toggle-status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (response.ok) {
+            alert(`Admin ${action} avec succès !`);
+            loadAdmins(); // Reload admins
+          } else {
+            alert(`Erreur lors de la ${action} de l'admin`);
+          }
+        } catch (error) {
+          alert(`Erreur: ${error.message}`);
+        }
+      }
+
+      // View admin details
+      function viewAdmin(adminId) {
+        const admin = admins.find(a => a.id === adminId);
+        if (admin) {
+          alert(`Détails de l'admin: ${JSON.stringify(admin, null, 2)}`);
+        }
+      }
+
+      // Edit admin (placeholder)
+      function editAdmin(adminId) {
+        alert("Fonctionnalité de modification des admins à implémenter");
+      }
+
+      // Show add admin modal (placeholder)
+      function showAddAdminModal() {
+        alert("Fonctionnalité d'ajout d'admin à implémenter");
+      }
+
+      // Load admin statistics
+      async function loadAdminsStats() {
+        try {
+          const response = await fetch("/api/superadmin/stats");
+          if (response.ok) {
+            const stats = await response.json();
+            alert(`Statistiques:\n- Total Admins: ${stats.totalAdmins}\n- Admins Actifs: ${stats.activeAdmins}\n- Total Employés: ${stats.totalEmployees}\n- Total Actualités: ${stats.totalNews}`);
+          } else {
+            alert("Erreur lors du chargement des statistiques");
+          }
+        } catch (error) {
+          alert("Erreur: " + error.message);
+        }
+      }
+
+      // Show loading state for admins
+      function showAdminsLoading() {
+        document.getElementById("adminsTableBody").innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+              <br>Chargement des admins...
+            </td>
+          </tr>
+        `;
+      }
+
+      // Show error message for admins
+      function showAdminsError(message) {
+        document.getElementById("adminsTableBody").innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 40px; color: #dc3545;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+              <br>${message}
+            </td>
+          </tr>
+        `;
+      }
+
+      // ==================== FILTER FUNCTIONS ====================
+
+      let originalEmployees = []; // Store original employee data for filtering
+      let originalNews = []; // Store original news data for filtering
+
+      // Load filter options for employees
+      async function loadEmployeeFilterOptions() {
+        try {
+          const token = localStorage.getItem("adminToken") || sessionStorage.getItem("authToken");
+          
+          // Load departments
+          const departmentsResponse = await fetch("/api/users/departments", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (departmentsResponse.ok) {
+            const departments = await departmentsResponse.json();
+            const departmentSelect = document.getElementById("employeeDepartmentFilter");
+            if (departmentSelect) {
+              departmentSelect.innerHTML = '<option value="">Tous les départements</option>';
+              departments.forEach((department) => {
+                departmentSelect.innerHTML += `<option value="${department}">${department}</option>`;
+              });
+            }
+          }
+
+          // Load locations
+          const locationsResponse = await fetch("/api/users/locations", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (locationsResponse.ok) {
+            const locations = await locationsResponse.json();
+            const locationSelect = document.getElementById("employeeLocationFilter");
+            if (locationSelect) {
+              locationSelect.innerHTML = '<option value="">Toutes les locations</option>';
+              locations.forEach((location) => {
+                locationSelect.innerHTML += `<option value="${location}">${location}</option>`;
+              });
+            }
+          }
+
+          // Load positions from employees
+          if (employees.length > 0) {
+            const positions = [...new Set(employees.map(emp => emp.position).filter(pos => pos))];
+            const positionSelect = document.getElementById("employeePositionFilter");
+            if (positionSelect) {
+              positionSelect.innerHTML = '<option value="">Toutes les positions</option>';
+              positions.forEach((position) => {
+                positionSelect.innerHTML += `<option value="${position}">${position}</option>`;
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error loading employee filter options:", error);
+        }
+      }
+
+      // Apply employee filters
+      function applyEmployeeFilters() {
+        console.log("🔍 applyEmployeeFilters called");
+        const departmentFilter = document.getElementById("employeeDepartmentFilter").value;
+        const locationFilter = document.getElementById("employeeLocationFilter").value;
+        const positionFilter = document.getElementById("employeePositionFilter").value;
+
+        console.log("🔍 Filter values:", { departmentFilter, locationFilter, positionFilter });
+        console.log("🔍 Original employees count:", originalEmployees.length);
+        console.log("🔍 Current employees count:", employees.length);
+
+        let filteredEmployees = originalEmployees.length > 0 ? originalEmployees : employees;
+        console.log("🔍 Starting with employees count:", filteredEmployees.length);
+
+        if (departmentFilter) {
+          filteredEmployees = filteredEmployees.filter(emp => emp.department === departmentFilter);
+          console.log("🔍 After department filter:", filteredEmployees.length);
+        }
+        if (locationFilter) {
+          filteredEmployees = filteredEmployees.filter(emp => emp.location === locationFilter);
+          console.log("🔍 After location filter:", filteredEmployees.length);
+        }
+        if (positionFilter) {
+          filteredEmployees = filteredEmployees.filter(emp => emp.position === positionFilter);
+          console.log("🔍 After position filter:", filteredEmployees.length);
+        }
+
+        // Update the global employees array for display
+        employees = filteredEmployees;
+        console.log("🔍 Final filtered employees count:", employees.length);
+        displayEmployees();
+      }
+
+      // Clear employee filters
+      function clearEmployeeFilters() {
+        document.getElementById("employeeDepartmentFilter").value = "";
+        document.getElementById("employeeLocationFilter").value = "";
+        document.getElementById("employeePositionFilter").value = "";
+        
+        // Restore original employees
+        if (originalEmployees.length > 0) {
+          employees = [...originalEmployees];
+          displayEmployees();
+        }
+      }
+
+      // Apply news filters
+      async function applyNewsFilters() {
+        try {
+          console.log("📰 applyNewsFilters called");
+          const location = document.getElementById("filterLocation").value;
+          const department = document.getElementById("filterDepartment").value;
+
+          console.log("📰 Applying news filters:", { location, department });
+
+          // Build query parameters - only location and department
+          const params = new URLSearchParams();
+          if (location) params.append("location", location);
+          if (department) params.append("department", department);
+
+          console.log("📰 Query string:", params.toString());
+
+          const token = localStorage.getItem("adminToken") || sessionStorage.getItem("authToken");
+          console.log("📰 Using token:", token ? "Present" : "Missing");
+          
+          const url = `/api/news?${params.toString()}`;
+          console.log("📰 Fetching URL:", url);
+          
+          const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          console.log("📰 Response status:", response.status);
+
+          if (response.ok) {
+            const filteredNews = await response.json();
+            console.log("📰 Filtered news count:", filteredNews.length);
+            displayNews(filteredNews);
+          } else {
+            console.error("📰 Failed to apply news filters, status:", response.status);
+          }
+        } catch (error) {
+          console.error("📰 Error applying news filters:", error);
+        }
+      }
+
+      // Load news filter options
+      async function loadNewsFilterOptions() {
+        try {
+          const token = localStorage.getItem("adminToken") || sessionStorage.getItem("authToken");
+
+          // Load locations
+          const locationsResponse = await fetch("/api/users/locations", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (locationsResponse.ok) {
+            const locations = await locationsResponse.json();
+            const locationSelect = document.getElementById("filterLocation");
+            if (locationSelect) {
+              locationSelect.innerHTML = '<option value="">Toutes les locations</option>';
+              locations.forEach((location) => {
+                locationSelect.innerHTML += `<option value="${location}">${location}</option>`;
+              });
+            }
+          }
+
+          // Load departments
+          const departmentsResponse = await fetch("/api/users/departments", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (departmentsResponse.ok) {
+            const departments = await departmentsResponse.json();
+            const departmentSelect = document.getElementById("filterDepartment");
+            if (departmentSelect) {
+              departmentSelect.innerHTML = '<option value="">Tous les départements</option>';
+              departments.forEach((department) => {
+                departmentSelect.innerHTML += `<option value="${department}">${department}</option>`;
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error loading news filter options:", error);
+        }
+      }
+
       // Logout function - moved outside DOMContentLoaded to be globally accessible
       function logout() {
         // Clear session storage
         sessionStorage.removeItem("currentAdmin");
         sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("userRole");
         // Clear local storage as well
         localStorage.removeItem("adminToken");
         // Redirect to main page

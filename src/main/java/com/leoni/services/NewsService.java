@@ -174,25 +174,34 @@ public class NewsService {
     }
     
     /**
-     * Get filtered news based on location and department with optional filters
+     * Get filtered news based ONLY on location and department
      */
-    public List<News> getFilteredNews(String location, String department, String category, String priority) {
-        // Use legacy format directly (isActive)
-        List<News> news = newsRepository.findActiveNewsByLocationAndDepartment(location, department);
+    public List<News> getFilteredNews(String location, String department) {
+        System.out.println("=== FILTERING NEWS ===");
+        System.out.println("Location filter: '" + location + "'");
+        System.out.println("Department filter: '" + department + "'");
         
-        // Apply additional filters if provided
-        if (category != null && !category.isEmpty()) {
+        // Start with all active news
+        List<News> news = newsRepository.findAllActiveNews();
+        System.out.println("Total active news found: " + news.size());
+        
+        // Apply location filter if provided
+        if (location != null && !location.trim().isEmpty()) {
             news = news.stream()
-                .filter(n -> category.equals(n.getCategory()))
+                .filter(n -> location.equalsIgnoreCase(n.getTargetLocation()))
                 .toList();
+            System.out.println("After location filter: " + news.size());
         }
         
-        if (priority != null && !priority.isEmpty()) {
+        // Apply department filter if provided
+        if (department != null && !department.trim().isEmpty()) {
             news = news.stream()
-                .filter(n -> priority.equals(n.getPriority()))
+                .filter(n -> department.equalsIgnoreCase(n.getTargetDepartment()))
                 .toList();
+            System.out.println("After department filter: " + news.size());
         }
         
+        System.out.println("Final filtered news count: " + news.size());
         return news;
     }
 }

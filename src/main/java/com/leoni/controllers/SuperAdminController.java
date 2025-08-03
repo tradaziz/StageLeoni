@@ -1,15 +1,21 @@
 package com.leoni.controllers;
 
 import com.leoni.models.SuperAdmin;
+import com.leoni.models.Admin;
+import com.leoni.models.User;
+import com.leoni.models.News;
 import com.leoni.services.SuperAdminService;
+import com.leoni.services.NewsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -22,132 +28,90 @@ public class SuperAdminController {
     @Autowired
     private SuperAdminService superAdminService;
     
-    /**
-     * Create a new superadmin
-     */
-    @PostMapping("/create")
-    public ResponseEntity<?> createSuperAdmin(@RequestBody Map<String, String> request) {
-        try {
-            String username = request.get("username");
-            String password = request.get("password");
-            
-            if (username == null || password == null) {
-                return ResponseEntity.badRequest().body(
-                    Map.of("success", false, "message", "Nom d'utilisateur et mot de passe requis")
-                );
-            }
-            
-            SuperAdmin superAdmin = new SuperAdmin(username, password);
-            SuperAdmin createdSuperAdmin = superAdminService.createSuperAdmin(superAdmin);
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "SuperAdmin créé avec succès",
-                "superadmin", Map.of(
-                    "id", createdSuperAdmin.getId(),
-                    "username", createdSuperAdmin.getUsername(),
-                    "role", createdSuperAdmin.getRole(),
-                    "active", createdSuperAdmin.isActive(),
-                    "createdAt", createdSuperAdmin.getCreatedAt()
-                )
-            ));
-            
-        } catch (Exception e) {
-            logger.error("Error creating superadmin", e);
-            return ResponseEntity.badRequest().body(
-                Map.of("success", false, "message", e.getMessage())
-            );
-        }
-    }
+    @Autowired
+    private NewsService newsService;
     
     /**
-     * Authenticate superadmin
+     * SuperAdmin login
      */
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticateSuperAdmin(@RequestBody Map<String, String> request) {
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
         try {
-            String username = request.get("username");
-            String password = request.get("password");
+            String username = credentials.get("username");
+            String password = credentials.get("password");
             
             Optional<SuperAdmin> superAdmin = superAdminService.authenticate(username, password);
             
+            Map<String, Object> response = new HashMap<>();
+            
             if (superAdmin.isPresent()) {
-                return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Authentification réussie",
-                    "superadmin", Map.of(
-                        "id", superAdmin.get().getId(),
-                        "username", superAdmin.get().getUsername(),
-                        "role", superAdmin.get().getRole()
-                    )
-                ));
+                response.put("success", true);
+                response.put("message", "SuperAdmin login successful");
+                response.put("superadmin", superAdmin.get());
+                response.put("role", "SUPERADMIN");
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(401).body(
-                    Map.of("success", false, "message", "Nom d'utilisateur ou mot de passe incorrect")
-                );
+                response.put("success", false);
+                response.put("message", "Invalid credentials");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
         } catch (Exception e) {
-            logger.error("Error authenticating superadmin", e);
-            return ResponseEntity.status(500).body(
-                Map.of("success", false, "message", "Erreur lors de l'authentification")
-            );
+            logger.error("Error during SuperAdmin login", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Login error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
     
     /**
-     * Get all active superadmins
+     * Get all admins (SuperAdmin privilege)
      */
-    @GetMapping("/all")
-    public ResponseEntity<List<SuperAdmin>> getAllSuperAdmins() {
+    @GetMapping("/admins")
+    public ResponseEntity<List<Admin>> getAllAdmins() {
         try {
-            List<SuperAdmin> superAdmins = superAdminService.getAllActiveSuperAdmins();
-            return ResponseEntity.ok(superAdmins);
+            List<Admin> admins = superAdminService.getAllAdmins();
+            return ResponseEntity.ok(admins);
         } catch (Exception e) {
-            logger.error("Error fetching superadmins", e);
-            return ResponseEntity.status(500).build();
+            logger.error("Error retrieving admins", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
     
     /**
-     * Get superadmin by ID
+     * Get all employees (SuperAdmin privilege)
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSuperAdminById(@PathVariable String id) {
+    @GetMapping("/employees")
+    public ResponseEntity<List<User>> getAllEmployees() {
         try {
-            Optional<SuperAdmin> superAdmin = superAdminService.findById(id);
-            if (superAdmin.isPresent()) {
-                return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "superadmin", superAdmin.get()
-                ));
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            List<User> employees = superAdminService.getAllEmployees();
+            return ResponseEntity.ok(employees);
         } catch (Exception e) {
-            logger.error("Error fetching superadmin by ID", e);
-            return ResponseEntity.status(500).body(
-                Map.of("success", false, "message", "Erreur lors de la récupération du SuperAdmin")
-            );
+            logger.error("Error retrieving employees", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
     
     /**
-     * Delete superadmin (soft delete)
+     * Get system statistics (SuperAdmin privilege)
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSuperAdmin(@PathVariable String id) {
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getSystemStats() {
         try {
-            superAdminService.deleteSuperAdmin(id);
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "SuperAdmin supprimé avec succès"
-            ));
+            Map<String, Object> stats = new HashMap<>();
+            
+            // Count admins and employees
+            stats.put("totalAdmins", superAdminService.getAllAdmins().size());
+            stats.put("activeAdmins", superAdminService.getActiveAdmins().size());
+            stats.put("totalEmployees", superAdminService.getAllEmployees().size());
+            stats.put("totalNews", newsService.getAllNews().size());
+            
+            return ResponseEntity.ok(stats);
+            
         } catch (Exception e) {
-            logger.error("Error deleting superadmin", e);
-            return ResponseEntity.status(500).body(
-                Map.of("success", false, "message", "Erreur lors de la suppression du SuperAdmin")
-            );
+            logger.error("Error retrieving system stats", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

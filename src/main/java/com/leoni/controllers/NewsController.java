@@ -151,14 +151,12 @@ public class NewsController {
     }
     
     /**
-     * Get news based on user role and filters
+     * Get news based on user role and filters (ONLY location and department)
      */
     @GetMapping
     public ResponseEntity<List<News>> getNews(
             @RequestParam(value = "location", required = false) String location,
             @RequestParam(value = "department", required = false) String department,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "priority", required = false) String priority,
             @RequestHeader(value = "Authorization", required = false) String authToken) {
         
         try {
@@ -181,31 +179,15 @@ public class NewsController {
             
             if ("SUPERADMIN".equals(role)) {
                 // SuperAdmin sees all news with optional filtering
-                if (location != null && department != null) {
-                    news = newsService.getFilteredNews(location, department, category, priority);
+                if (location != null || department != null) {
+                    news = newsService.getFilteredNews(location, department);
                 } else {
                     // For SuperAdmin, show ALL news regardless of status
                     news = newsService.getAllNews();
-                    
-                    // Apply filters on all news
-                    if (category != null && !category.isEmpty()) {
-                        news = news.stream().filter(n -> category.equals(n.getCategory())).toList();
-                    }
-                    if (priority != null && !priority.isEmpty()) {
-                        news = news.stream().filter(n -> priority.equals(n.getPriority())).toList();
-                    }
                 }
             } else {
                 // Admin sees only their targeted news
                 news = newsService.getNewsForAdmin(userId);
-                
-                // Apply additional filters if provided
-                if (category != null) {
-                    news = news.stream().filter(n -> category.equals(n.getCategory())).toList();
-                }
-                if (priority != null) {
-                    news = news.stream().filter(n -> priority.equals(n.getPriority())).toList();
-                }
             }
             
             return ResponseEntity.ok(news);
@@ -232,17 +214,15 @@ public class NewsController {
     }
     
     /**
-     * Get news for employees (public endpoint with location/department filtering)
+     * Get news for employees (public endpoint with location/department filtering ONLY)
      */
     @GetMapping("/public")
     public ResponseEntity<List<News>> getPublicNews(
             @RequestParam("location") String location,
-            @RequestParam("department") String department,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "priority", required = false) String priority) {
+            @RequestParam("department") String department) {
         
         try {
-            List<News> news = newsService.getFilteredNews(location, department, category, priority);
+            List<News> news = newsService.getFilteredNews(location, department);
             return ResponseEntity.ok(news);
             
         } catch (Exception e) {

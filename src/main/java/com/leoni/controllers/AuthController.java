@@ -3,8 +3,10 @@ package com.leoni.controllers;
 import com.leoni.dto.AuthRequest;
 import com.leoni.dto.AuthResponse;
 import com.leoni.models.Admin;
+import com.leoni.models.SuperAdmin;
 import com.leoni.services.AuthService;
 import com.leoni.services.AdminService;
+import com.leoni.services.SuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ public class AuthController {
     
     @Autowired
     private AdminService adminService;
+    
+    @Autowired
+    private SuperAdminService superAdminService;
     
     /**
      * Admin login endpoint for React frontend
@@ -47,6 +52,22 @@ public class AuthController {
                 // Use AuthService to properly authenticate and get a valid token
                 AuthResponse response = authService.authenticate(authRequest);
                 System.out.println("Admin authenticated, returning: " + response);
+                return ResponseEntity.ok(response);
+            }
+            
+            // Try to authenticate as SuperAdmin
+            Optional<SuperAdmin> superAdmin = superAdminService.authenticate(authRequest.getUsername(), authRequest.getPassword());
+            if (superAdmin.isPresent()) {
+                // Create response for SuperAdmin
+                AuthResponse response = new AuthResponse(
+                    true,
+                    "Authentication successful",
+                    "superadmin-token-" + System.currentTimeMillis(),
+                    authRequest.getUsername()
+                );
+                response.setRole("SUPERADMIN");
+                response.setUserId(superAdmin.get().getId());
+                System.out.println("SuperAdmin authenticated, returning: " + response);
                 return ResponseEntity.ok(response);
             }
             

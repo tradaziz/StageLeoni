@@ -115,7 +115,7 @@
     <div class="login-container">
       <div class="login-header">
         <h1>Connexion Admin</h1>
-        <p>Connectez-vous à votre compte administrateur</p>
+        <p>Connectez-vous à votre compte administrateur ou superadmin</p>
       </div>
 
       <div id="errorMessage" class="error-message"></div>
@@ -129,6 +129,14 @@
         <div class="form-group">
           <label for="password">Mot de passe :</label>
           <input type="password" id="password" name="password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="userType">Type d'utilisateur :</label>
+          <select id="userType" name="userType" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;">
+            <option value="admin">Admin</option>
+            <option value="superadmin">SuperAdmin</option>
+          </select>
         </div>
 
         <button type="submit" id="loginBtn" class="login-btn">
@@ -148,6 +156,7 @@
 
           const username = document.getElementById("username").value;
           const password = document.getElementById("password").value;
+          const userType = document.getElementById("userType").value;
 
           if (!username || !password) {
             showError(
@@ -161,8 +170,11 @@
           document.getElementById("loginBtn").disabled = true;
 
           try {
+            // Choose endpoint based on user type
+            const endpoint = userType === 'superadmin' ? '/api/superadmin/login' : '/api/auth/login';
+            
             // Authenticate with the server
-            const response = await fetch("/api/auth/login", {
+            const response = await fetch(endpoint, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -182,16 +194,20 @@
                 return;
               }
 
-              // Store the authenticated admin in sessionStorage and localStorage
+              // Store authentication data
               sessionStorage.setItem("currentAdmin", username);
               sessionStorage.setItem("authToken", result.token);
-              // Also store in localStorage for dashboard compatibility
               localStorage.setItem("adminToken", result.token);
+              localStorage.setItem("username", username);
+              localStorage.setItem("userRole", result.role || (userType === 'superadmin' ? 'SUPERADMIN' : 'ADMIN'));
+              localStorage.setItem("token", result.token);
 
-              // Redirect to dashboard
-              window.location.href = `/dashboard?adminUsername=${encodeURIComponent(
-                username
-              )}`;
+              // Redirect based on user type
+              if (userType === 'superadmin' || result.role === 'SUPERADMIN') {
+                window.location.href = '/superadmin-dashboard.html';
+              } else {
+                window.location.href = `/dashboard?adminUsername=${encodeURIComponent(username)}`;
+              }
             } else {
               const error = await response.json();
               showError(

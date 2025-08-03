@@ -2,6 +2,7 @@ package com.leoni.config;
 
 import com.leoni.models.Department;
 import com.leoni.models.DocumentType;
+import com.leoni.services.SuperAdminService;
 import com.leoni.repositories.DepartmentRepository;
 import com.leoni.repositories.DocumentTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class DataSeeder {
     
     @Autowired
     private MongoTemplate mongoTemplate;
+    
+    @Autowired
+    private SuperAdminService superAdminService;
 
     /**
      * Seed initial data after application is ready
@@ -32,6 +36,7 @@ public class DataSeeder {
     public void seedInitialData() {
         seedDocumentTypes();
         seedDepartmentHierarchy();
+        seedDefaultSuperAdmin();
     }
     
     /**
@@ -123,6 +128,17 @@ public class DataSeeder {
             }
         } catch (Exception e) {
             System.err.println("Error seeding department hierarchy: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Create default SuperAdmin if none exists
+     */
+    private void seedDefaultSuperAdmin() {
+        try {
+            superAdminService.createDefaultSuperAdminIfNeeded();
+        } catch (Exception e) {
+            System.err.println("Error seeding default SuperAdmin: " + e.getMessage());
         }
     }
 }
