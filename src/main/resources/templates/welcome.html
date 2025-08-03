@@ -595,6 +595,7 @@
           successAlert.style.display = "none";
 
           try {
+            console.log("Attempting login with:", username);
             const response = await fetch("/api/auth/login", {
               method: "POST",
               headers: {
@@ -603,30 +604,69 @@
               body: JSON.stringify({ username, password }),
             });
 
+            console.log("Response status:", response.status);
             const data = await response.json();
+            console.log("Login response:", data);
+
+            // Verify we have the expected response structure
+            if (!data.hasOwnProperty("success")) {
+              throw new Error("Invalid response format from server");
+            }
 
             if (data.success) {
               successMessage.textContent =
                 "Authentication successful! Welcome to Leoni Admin Panel.";
               successAlert.style.display = "block";
 
-              // Store admin info in session storage if available
-              if (data.admin) {
-                sessionStorage.setItem("adminInfo", JSON.stringify(data.admin));
-                sessionStorage.setItem("currentAdmin", data.admin.username);
+              // Store authentication token
+              if (data.token) {
+                sessionStorage.setItem("authToken", data.token);
+                localStorage.setItem("adminToken", data.token);
+                console.log(
+                  "Token stored:",
+                  data.token.substring(0, 20) + "..."
+                );
+              }
+
+              // Store admin info in session storage using the correct fields from AuthResponse
+              if (data.username) {
+                const adminInfo = {
+                  username: data.username,
+                  role: data.role || "ADMIN",
+                  userId: data.userId,
+                  location: data.location,
+                  department: data.department,
+                };
+                sessionStorage.setItem("adminInfo", JSON.stringify(adminInfo));
+                sessionStorage.setItem("currentAdmin", data.username);
+                console.log("Admin info stored:", data.username);
               }
 
               // Redirect to dashboard with admin username parameter
               setTimeout(() => {
-                const adminUsername = data.admin ? data.admin.username : username;
-                window.location.href = `/dashboard?adminUsername=${adminUsername}`;
+                const adminUsername = data.username || username;
+                console.log(
+                  "Redirecting to dashboard with username:",
+                  adminUsername
+                );
+
+                // Force redirection even if there are any issues
+                try {
+                  window.location.href = `/dashboard?adminUsername=${adminUsername}`;
+                } catch (redirectError) {
+                  console.error("Redirection error:", redirectError);
+                  // Fallback redirection
+                  window.location = `/dashboard`;
+                }
               }, 1500);
             } else {
+              console.log("Login failed:", data.message);
               errorMessage.textContent =
                 data.message || "Invalid credentials. Please try again.";
               errorAlert.style.display = "block";
             }
           } catch (error) {
+            console.error("Login error:", error);
             errorMessage.textContent =
               "Connection error. Please check your network and try again.";
             errorAlert.style.display = "block";

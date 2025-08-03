@@ -44,19 +44,17 @@ public class AuthController {
             // Try to authenticate with AdminService first
             Optional<Admin> admin = adminService.authenticateAdmin(authRequest.getUsername(), authRequest.getPassword());
             if (admin.isPresent()) {
-                AuthResponse response = AuthResponse.success("Admin authenticated successfully");
-                response.setUsername(admin.get().getUsername());
-                response.setRole("ADMIN");
-                // Store admin info for session management
-                response.setToken(admin.get().getId()); // Using admin ID as token for simplicity
+                // Use AuthService to properly authenticate and get a valid token
+                AuthResponse response = authService.authenticate(authRequest);
+                System.out.println("Admin authenticated, returning: " + response);
                 return ResponseEntity.ok(response);
             }
             
             // Fallback to hardcoded admin credentials for backward compatibility
             if ("admin".equals(authRequest.getUsername()) && "admin".equals(authRequest.getPassword())) {
-                AuthResponse response = AuthResponse.success("Admin authenticated successfully");
-                response.setUsername("admin");
-                response.setRole("ADMIN");
+                // Use AuthService for consistent token generation
+                AuthResponse response = authService.authenticate(authRequest);
+                System.out.println("Fallback admin authenticated, returning: " + response);
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(401).body(
@@ -139,6 +137,32 @@ public class AuthController {
                 return ResponseEntity.ok(
                     new AuthResponse(true, "Utilisateur authentifié", token, username)
                 );
+            } else {
+                return ResponseEntity.status(401).body(
+                    AuthResponse.failure("Token invalide")
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                AuthResponse.failure("Erreur lors de la récupération des informations utilisateur: " + e.getMessage())
+            );
+        }
+    }
+    
+    /**
+     * Get current user info with role
+     */
+    @GetMapping("/user-info")
+    public ResponseEntity<AuthResponse> getUserInfo(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String username = authService.getUsernameFromToken(token);
+            String role = authService.getRoleFromToken(token);
+            
+            if (username != null && role != null) {
+                AuthResponse response = new AuthResponse(true, "Informations utilisateur récupérées", token, username);
+                response.setRole(role);
+                return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(401).body(
                     AuthResponse.failure("Token invalide")

@@ -467,6 +467,99 @@ public class UserService {
         // Use existing filtering method
         return getFilteredUsersByLocationAndDepartment(adminLocation, adminDepartment);
     }
+    
+    /**
+     * Get users based on role - for admins: filtered by their location/department, for superadmins: all users with optional filters
+     * @param userRole the role of the requesting user (ADMIN or SUPERADMIN)
+     * @param userId the ID of the requesting user
+     * @param filterLocation optional location filter (mainly for superadmin)
+     * @param filterDepartment optional department filter (mainly for superadmin)
+     * @param filterStatus optional status filter
+     * @return List of UserDTO based on role and filters
+     */
+    public List<UserDTO> getUsersByRole(String userRole, String userId, String filterLocation, String filterDepartment, String filterStatus) {
+        System.out.println("=== FILTERING BY ROLE ===");
+        System.out.println("User Role: " + userRole + ", User ID: " + userId);
+        System.out.println("Filters - Location: " + filterLocation + ", Department: " + filterDepartment + ", Status: " + filterStatus);
+        
+        List<UserDTO> users;
+        
+        if ("SUPERADMIN".equals(userRole)) {
+            // SuperAdmin sees all users with optional filtering
+            users = getAllUsers();
+            
+            // Apply filters if provided
+            if (filterLocation != null && !filterLocation.trim().isEmpty()) {
+                users = users.stream()
+                    .filter(user -> filterLocation.equalsIgnoreCase(user.getLocation()))
+                    .collect(Collectors.toList());
+            }
+            
+            if (filterDepartment != null && !filterDepartment.trim().isEmpty()) {
+                users = users.stream()
+                    .filter(user -> filterDepartment.equalsIgnoreCase(user.getDepartment()))
+                    .collect(Collectors.toList());
+            }
+            
+            if (filterStatus != null && !filterStatus.trim().isEmpty()) {
+                users = users.stream()
+                    .filter(user -> filterStatus.equalsIgnoreCase(user.getStatus()))
+                    .collect(Collectors.toList());
+            }
+            
+        } else {
+            // Admin sees only users from their location and department
+            Optional<Admin> adminOpt = adminRepository.findById(userId);
+            if (adminOpt.isPresent()) {
+                Admin admin = adminOpt.get();
+                users = getFilteredUsersByLocationAndDepartment(admin.getLocation(), admin.getDepartment());
+                
+                // Apply status filter if provided
+                if (filterStatus != null && !filterStatus.trim().isEmpty()) {
+                    users = users.stream()
+                        .filter(user -> filterStatus.equalsIgnoreCase(user.getStatus()))
+                        .collect(Collectors.toList());
+                }
+            } else {
+                System.out.println("Admin not found with ID: " + userId);
+                users = List.of();
+            }
+        }
+        
+        System.out.println("Returning " + users.size() + " users");
+        return users;
+    }
+    
+    /**
+     * Get all users for superadmin with optional filters
+     * @param location optional location filter
+     * @param department optional department filter
+     * @param status optional status filter
+     * @return List of filtered UserDTO
+     */
+    public List<UserDTO> getAllUsersWithFilters(String location, String department, String status) {
+        List<UserDTO> users = getAllUsers();
+        
+        if (location != null && !location.trim().isEmpty()) {
+            users = users.stream()
+                .filter(user -> location.equalsIgnoreCase(user.getLocation()))
+                .collect(Collectors.toList());
+        }
+        
+        if (department != null && !department.trim().isEmpty()) {
+            users = users.stream()
+                .filter(user -> department.equalsIgnoreCase(user.getDepartment()))
+                .collect(Collectors.toList());
+        }
+        
+        if (status != null && !status.trim().isEmpty()) {
+            users = users.stream()
+                .filter(user -> status.equalsIgnoreCase(user.getStatus()))
+                .collect(Collectors.toList());
+        }
+        
+        return users;
+    }
 
     /**
      * Get departments by location name (new simplified structure)
@@ -487,6 +580,19 @@ public class UserService {
         return departmentRepository.findAll().stream()
                 .map(Department::getLocation)
                 .filter(location -> location != null && !location.trim().isEmpty())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Get all unique departments
+     * @return List of unique department names
+     */
+    public List<String> getAllDepartments() {
+        return departmentRepository.findAll().stream()
+                .map(Department::getName)
+                .filter(name -> name != null && !name.trim().isEmpty())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());

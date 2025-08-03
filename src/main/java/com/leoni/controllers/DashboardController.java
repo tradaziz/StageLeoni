@@ -26,6 +26,15 @@ public class DashboardController {
     }
     
     /**
+     * Handle favicon.ico requests to prevent 500 errors
+     */
+    @GetMapping("/favicon.ico")
+    @ResponseBody
+    public ResponseEntity<Void> favicon() {
+        return ResponseEntity.notFound().build();
+    }
+    
+    /**
      * Get admin information by admin ID (used as session token)
      * @param adminId the admin ID from session
      * @return Admin information

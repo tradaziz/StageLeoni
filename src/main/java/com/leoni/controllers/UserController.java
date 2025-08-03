@@ -247,4 +247,32 @@ public class UserController {
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(response);
     }
+    
+    /**
+     * Get all distinct locations
+     * @return List of locations
+     */
+    @GetMapping("/locations")
+    public ResponseEntity<List<String>> getAllLocations() {
+        try {
+            List<String> locations = userService.getAllLocations();
+            return ResponseEntity.ok(locations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    /**
+     * Get all distinct departments
+     * @return List of departments
+     */
+    @GetMapping("/departments")
+    public ResponseEntity<List<String>> getAllDepartments() {
+        try {
+            List<String> departments = userService.getAllDepartments();
+            return ResponseEntity.ok(departments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

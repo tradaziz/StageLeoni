@@ -115,67 +115,96 @@ public class AdminEmployeeController {
 
     /**
      * Get all employees with their documents for admin panel
-     * Filtered by admin's department hierarchy
+     * Filtered by admin's department hierarchy or all employees for superadmin
      * @param adminId the admin ID for filtering (optional)
      * @param adminUsername the admin username for filtering (optional, alternative to adminId)
+     * @param location location filter (optional, mainly for superadmin)
+     * @param department department filter (optional, mainly for superadmin)
+     * @param status status filter (optional)
      */
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllEmployees(
             @RequestParam(value = "adminId", required = false) String adminId,
             @RequestParam(value = "adminUsername", required = false) String adminUsername,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "department", required = false) String department,
+            @RequestParam(value = "status", required = false) String status,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
             System.out.println("=== GET ALL EMPLOYEES REQUEST ===");
             System.out.println("AdminId parameter: " + adminId);
             System.out.println("AdminUsername parameter: " + adminUsername);
+            System.out.println("Filters - Location: " + location + ", Department: " + department + ", Status: " + status);
             System.out.println("Authorization header: " + authHeader);
             
             List<UserDTO> users;
+            String userRole = null;
+            String userId = null;
             String actualAdminUsername = null;
             
-            // Determine which admin username to use
-            if (adminUsername != null && !adminUsername.isEmpty()) {
-                actualAdminUsername = adminUsername;
-            } else if (adminId != null && !adminId.isEmpty()) {
-                // Get admin by ID and extract username
-                Admin admin = adminService.getAdminById(adminId);
-                if (admin != null) {
-                    actualAdminUsername = admin.getUsername();
-                }
-            } else if (authHeader != null && !authHeader.trim().isEmpty()) {
-                // Try to extract admin info from Authorization header
+            // Check if we have an authorization token
+            if (authHeader != null && !authHeader.trim().isEmpty()) {
                 String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
-                System.out.println("Extracted token: " + token);
                 
-                // Try to find admin by token (assuming token is admin ID)
-                Admin admin = adminService.getAdminById(token);
-                if (admin != null) {
-                    actualAdminUsername = admin.getUsername();
-                    System.out.println("Found admin from token - Username: " + actualAdminUsername);
-                } else {
-                    System.out.println("Admin not found by token ID, trying to validate token and extract username");
-                    // If token is not admin ID, try to validate and get username from AuthService
-                    if (authService.validateToken(token)) {
-                        actualAdminUsername = authService.getUsernameFromToken(token);
-                        if (actualAdminUsername != null) {
-                            System.out.println("Found admin username from token: " + actualAdminUsername);
-                        }
-                    }
+                if (authService.validateToken(token)) {
+                    userRole = authService.getRoleFromToken(token);
+                    userId = authService.getUserIdFromToken(token);
+                    System.out.println("Token validated - Role: " + userRole + ", UserId: " + userId);
                 }
             }
             
-            if (actualAdminUsername != null) {
-                System.out.println("Using admin username for filtering: " + actualAdminUsername);
-                // Use the new simplified method that handles everything internally
-                users = userService.getFilteredUsersByAdminUsername(actualAdminUsername);
-                System.out.println("Found " + users.size() + " employees in admin's scope");
-            } else if (adminId != null || adminUsername != null || authHeader != null) {
-                // Admin info provided but admin not found
-                System.out.println("Admin not found, returning empty list");
-                users = List.of();
+            // If we have role information from token, use it
+            if (userRole != null && userId != null) {
+                users = userService.getUsersByRole(userRole, userId, location, department, status);
+                System.out.println("Found " + users.size() + " employees using role-based filtering");
+                
             } else {
-                // No admin info provided, return all users (for backward compatibility)
-                users = userService.getAllUsers();
+                // Fallback to legacy method for backward compatibility
+                
+                // Determine which admin username to use
+                if (adminUsername != null && !adminUsername.isEmpty()) {
+                    actualAdminUsername = adminUsername;
+                } else if (adminId != null && !adminId.isEmpty()) {
+                    // Get admin by ID and extract username
+                    Admin admin = adminService.getAdminById(adminId);
+                    if (admin != null) {
+                        actualAdminUsername = admin.getUsername();
+                    }
+                } else if (authHeader != null && !authHeader.trim().isEmpty()) {
+                    // Try to extract admin info from Authorization header
+                    String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+                    System.out.println("Extracted token: " + token);
+                    
+                    // Try to find admin by token (assuming token is admin ID)
+                    Admin admin = adminService.getAdminById(token);
+                    if (admin != null) {
+                        actualAdminUsername = admin.getUsername();
+                        System.out.println("Found admin from token - Username: " + actualAdminUsername);
+                    } else {
+                        System.out.println("Admin not found by token ID, trying to validate token and extract username");
+                        // If token is not admin ID, try to validate and get username from AuthService
+                        if (authService.validateToken(token)) {
+                            actualAdminUsername = authService.getUsernameFromToken(token);
+                            if (actualAdminUsername != null) {
+                                System.out.println("Found admin username from token: " + actualAdminUsername);
+                            }
+                        }
+                    }
+                }
+                
+                if (actualAdminUsername != null) {
+                    System.out.println("Using admin username for filtering: " + actualAdminUsername);
+                    // Use the existing method for admin filtering
+                    users = userService.getFilteredUsersByAdminUsername(actualAdminUsername);
+                    System.out.println("Found " + users.size() + " employees in admin's scope");
+                } else if (adminId != null || adminUsername != null || authHeader != null) {
+                    // Admin info provided but admin not found
+                    System.out.println("Admin not found, returning empty list");
+                    users = List.of();
+                } else {
+                    // No admin info provided, return all users (for backward compatibility)
+                    users = userService.getAllUsers();
+                }
             }
             
             List<Map<String, Object>> employeesWithDocuments = users.stream()
